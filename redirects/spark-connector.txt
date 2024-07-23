@@ -1,0 +1,8 @@
+https://www.mongodb.com/docs/spark-connector/v1.1/		https://www.mongodb.com/docs/spark-connector/current/
+https://www.mongodb.com/docs/spark-connector/v1.1/configuration/		https://www.mongodb.com/docs/spark-connector/current/configuration/
+https://www.mongodb.com/docs/spark-connector/v1.1/faq/		https://www.mongodb.com/docs/spark-connector/current/faq/
+https://www.mongodb.com/docs/spark-connector/v1.1/getting-started/		https://www.mongodb.com/docs/spark-connector/current/getting-started/
+https://www.mongodb.com/docs/spark-connector/v1.1/java-api/		https://www.mongodb.com/docs/spark-connector/current/java-api/
+https://www.mongodb.com/docs/spark-connector/v1.1/python-api/		https://www.mongodb.com/docs/spark-connector/current/python-api/
+https://www.mongodb.com/docs/spark-connector/v1.1/spark-sql/		https://www.mongodb.com/docs/spark-connector/current/
+https://www.mongodb.com/docs/spark-connector/v1.1/sparkR/		https://www.mongodb.com/docs/spark-connector/current/
