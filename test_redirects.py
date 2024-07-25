@@ -1,11 +1,16 @@
 import sys
 import requests
 
+
 def main() -> None:
     source_file = sys.argv[1]
 
     with open(source_file, "r") as f:
-        rules = [(rule[0], rule[1]) for rule in (line.split(None, 1) for line in f.read().split("\n")) if rule]
+        rules = [
+            (rule[0], rule[1])
+            for rule in (line.split(None, 1) for line in f.read().split("\n"))
+            if rule
+        ]
 
     fails = 0
     successes = 0
@@ -29,3 +34,7 @@ def main() -> None:
 
     if fails > 0:
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

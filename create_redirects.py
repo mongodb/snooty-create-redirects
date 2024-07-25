@@ -1,12 +1,17 @@
 import sys
 import boto3
 
+
 def main() -> None:
     source_file = sys.argv[1]
     from_base = "https://www.mongodb.com"
 
     with open(source_file, "r") as f:
-        rules = [(rule[0], rule[1]) for rule in (line.split(None, 1) for line in f.read().split("\n")) if rule]
+        rules = [
+            (rule[0], rule[1])
+            for rule in (line.split(None, 1) for line in f.read().split("\n"))
+            if rule
+        ]
 
     output_rules = []
 
