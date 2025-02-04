@@ -7,7 +7,6 @@ name = 'convert_redirects'
 version = '0.0.1.dev'
 description = ''
 authors = ['Andrew Aldridge <i80and@foxquill.com>']
-package-mode = false
 
 [tool.poetry.dependencies]
 python = '>=3.8,<4.0'
