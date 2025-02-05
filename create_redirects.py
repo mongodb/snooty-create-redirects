@@ -28,8 +28,6 @@ def main() -> None:
     s3 = boto3.session.Session().resource("s3").Bucket(sys.argv[2])
 
     for rule_from, rule_to in output_rules:
-        print('rule from : ', rule_from)
-        print('rule to : ', rule_to)
         obj = s3.Object(rule_from)
         obj.put(WebsiteRedirectLocation=rule_to)
 
