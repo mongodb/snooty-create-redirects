@@ -1,0 +1,4 @@
+{
+    "doc/compass/current/config-file/config-file-options/index.html": "https://www.mongodb.com/docs/compass/current/settings/config-file/",
+    "doc/compass/current/dark-mode/index.html": "https://www.mongodb.com/docs/compass/current/settings/settings-reference/#settings"
+}
