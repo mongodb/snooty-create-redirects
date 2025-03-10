@@ -46,7 +46,7 @@ def main() -> None:
     redirect_file_num = '-{args.redirectFileNumber}' if args.redirectFileNumber else ""
     f = open(f"scraped-redirects/{args.bucket}-redirects{redirect_file_num}.txt", 'a')
     start_index = 0 if not args.firstIndex else args.firstIndex
-    last_index = len(objects) if not args.lastIndex else args.lastIndex
+    last_index = len(objects)-1 if not args.lastIndex else args.lastIndex
     redirects = {}
 
 
