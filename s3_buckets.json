@@ -1,0 +1,472 @@
+[
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/stable"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/manual"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/master"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/manual"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/current"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/manual"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/php-library/master"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/php-library/upcoming"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/realm/sdk"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/atlas/device-sdks/sdk"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/realm/web"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/atlas/device-sdks/web"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/realm/studio"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/atlas/device-sdks/studio"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/bi-connector/v2.9"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/bi-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/bi-connector/v2.8"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/bi-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/bi-connector/v2.7"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/bi-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/bi-connector/v2.6"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/bi-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/bi-connector/v2.5"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/bi-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/bi-connector/v2.4"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/bi-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/bi-connector/v2.3"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/bi-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/bi-connector/v2.2"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/bi-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/bi-connector/v2.1/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/bi-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/bi-connector/v2.0"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/bi-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/bi-connector/v1.1"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/bi-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v0.8"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v0.9"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v0.10"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v0.11"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v0.12"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.0/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.3/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.4/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.5/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.6/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.7/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.8/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.9/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.10/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.11/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.12/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.13/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.14/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.15/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.16/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/v1.17/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current/"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/kubernetes-operator/stable"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/kubernetes-operator/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/mongocli/stable"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/mongocli/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/spark-connector/v1.1.1"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/spark-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/spark-connector/v2.0"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/spark-connector/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/ruby-driver/master"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/ruby-driver/upcoming"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/compass/beta"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/compass/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/compass/upcoming"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/compass/current"
+        }
+    },
+    {
+        "Condition": {
+            "KeyPrefixEquals": "docs/compass/master/"
+        },
+        "Redirect": {
+            "HostName": "www.mongodb.com",
+            "Protocol": "https",
+            "ReplaceKeyPrefixWith": "docs/compass/current/"
+        }
+    }
+]
