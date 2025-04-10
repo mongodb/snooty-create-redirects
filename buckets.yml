@@ -1,0 +1,602 @@
+
+Resources:
+  DocsBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: ${self:custom.bucketName}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: ${self:custom.site.errorDoc.${self:provider.stage}, null}
+          RoutingRules:
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/stable
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/manual
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/master
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/manual
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/current
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/manual
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/atlas/cli/v1.3.0
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/atlas/cli/v1.3
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/atlas/cli/v1.2
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/atlas/cli/v1.2
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/atlas/cli/v1.1
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/atlas/cli/v1.1
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/php-library/master
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/php-library/upcoming
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/realm/sdk
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/atlas/device-sdks/sdk
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/realm/web
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/atlas/device-sdks/web
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/realm/studio
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/atlas/device-sdks/studio
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/v2.9
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/v2.8
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/v2.7
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/v2.6
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/v2.5
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/v2.4
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/v2.3
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/v2.2
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/v2.1
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/v2.0
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/v1.1
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/bi-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/kubernetes-operator/v0.
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/kubernetes-operator/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/kubernetes-operator/v1
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/kubernetes-operator/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/kubernetes-operator/stable
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/kubernetes-operator/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/mongocli/v0.
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/mongocli/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/mongocli/stable
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/mongocli/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/spark-connector/v1.1
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/spark-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/spark-connector/v2
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/spark-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/spark-connector/v3.0
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/spark-connector/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/ruby-driver/master
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/ruby-driver/upcoming
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/compass/beta
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/compass/current
+            - RoutingRuleCondition:
+                KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/compass/upcoming
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/compass/current
+  DocAtlasBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketName: ${self:custom.atlasBucketName}
+      WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: ${self:custom.site.errorDoc.${self:provider.stage}, null}
+          RoutingRules:
+            - RoutingRuleCondition:
+                  KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/atlas/cli/stable
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/atlas/cli/current
+            - RoutingRuleCondition:
+                  KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/atlas/atlas-operator/stable
+              RedirectRule:
+                Protocol: "https"
+                HostName: ${self:custom.site.host.${self:provider.stage}}
+                ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/atlas/atlas-operator/current
+  CloudManagerBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      PublicAccessBlockConfiguration:  
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketName: ${self:custom.cloudManagerBucketName}
+      WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: ${self:custom.site.errorDoc.${self:provider.stage}, null}
+
+  OpsManagerBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketName: ${self:custom.opsManagerBucketName}
+      WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: ${self:custom.site.errorDoc.${self:provider.stage}, null}
+
+  JavaBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketName: ${self:custom.javaBucketName}
+      WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: ${self:custom.site.errorDoc.${self:provider.stage}, null}
+
+  GoBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketName: ${self:custom.goBucketName}
+      WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: ${self:custom.site.errorDoc.${self:provider.stage}, null}
+
+  NodeBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketName: ${self:custom.nodeBucketName}
+      WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: ${self:custom.site.errorDoc.${self:provider.stage}, null}
+
+  CSharpBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketName: ${self:custom.cSharpBucketName}
+      WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: ${self:custom.site.errorDoc.${self:provider.stage}, null}
+
+  LanguagesBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      BucketName: ${self:custom.languagesBucketName}
+      WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: ${self:custom.site.errorDoc.${self:provider.stage}, null}
+          RoutingRules:
+            - RoutingRuleCondition:
+                  KeyPrefixEquals: ${self:custom.site.prefix.${self:provider.stage}}/languages/scala/driver/master
+              RedirectRule:
+                  Protocol: "https"
+                  HostName: ${self:custom.site.host.${self:provider.stage}}
+                  ReplaceKeyPrefixWith: ${self:custom.site.prefix.${self:provider.stage}}/languages/scala/driver/upcoming
+
+
+  DocsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: DocsBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - 's3:GetObject'
+              - 's3:ListBucket'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["DocsBucket", "Arn" ] }, '/*']]
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["DocsBucket", "Arn" ] }]]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-archive-job-${self:provider.stage}-batch
+            Action:
+              - 's3:GetObject'
+              - 's3:ListBucket'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["DocsBucket", "Arn" ] }, '/*']]
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["DocsBucket", "Arn" ] }]]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-deploy-job-${self:provider.stage}-batch
+            Action: 's3:PutObject'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["DocsBucket", "Arn" ] }, '/*']]
+
+  DocAtlasBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: DocAtlasBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - s3:GetObject
+            Resource:
+            - Fn::Join: ['', [{ "Fn::GetAtt": ["DocAtlasBucket", "Arn" ] }, '/*']]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-archive-job-${self:provider.stage}-batch
+            Action:
+              - 's3:GetObject'
+              - 's3:ListBucket'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["DocAtlasBucket", "Arn" ] }, '/*']]
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["DocAtlasBucket", "Arn" ] }]]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-deploy-job-${self:provider.stage}-batch
+            Action: 's3:PutObject'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["DocAtlasBucket", "Arn" ] }, '/*']]
+
+  CloudManagerBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: CloudManagerBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - s3:GetObject
+            Resource:
+            - Fn::Join: ['', [{ "Fn::GetAtt": ["CloudManagerBucket", "Arn" ] }, '/*']]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-archive-job-${self:provider.stage}-batch
+            Action:
+              - 's3:GetObject'
+              - 's3:ListBucket'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["CloudManagerBucket", "Arn" ] }, '/*']]
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["CloudManagerBucket", "Arn" ] }]]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-deploy-job-${self:provider.stage}-batch
+            Action: 's3:PutObject'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["CloudManagerBucket", "Arn" ] }, '/*']]
+
+  OpsManagerBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: OpsManagerBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - s3:GetObject
+            Resource:
+            - Fn::Join: ['', [{ "Fn::GetAtt": ["OpsManagerBucket", "Arn" ] }, '/*']]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-archive-job-${self:provider.stage}-batch
+            Action:
+              - 's3:GetObject'
+              - 's3:ListBucket'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["OpsManagerBucket", "Arn" ] }, '/*']]
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["OpsManagerBucket", "Arn" ] }]]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-deploy-job-${self:provider.stage}-batch
+            Action: 's3:PutObject'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["OpsManagerBucket", "Arn" ] }, '/*']]
+
+  JavaBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: JavaBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - s3:GetObject
+            Resource:
+            - Fn::Join: ['', [{ "Fn::GetAtt": ["JavaBucket", "Arn" ] }, '/*']]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-archive-job-${self:provider.stage}-batch
+            Action:
+              - 's3:GetObject'
+              - 's3:ListBucket'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["JavaBucket", "Arn" ] }, '/*']]
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["JavaBucket", "Arn" ] }]]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-deploy-job-${self:provider.stage}-batch
+            Action: 's3:PutObject'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["JavaBucket", "Arn" ] }, '/*']]
+
+  GoBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: GoBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - s3:GetObject
+            Resource:
+            - Fn::Join: ['', [{ "Fn::GetAtt": ["GoBucket", "Arn" ] }, '/*']]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-archive-job-${self:provider.stage}-batch
+            Action:
+              - 's3:GetObject'
+              - 's3:ListBucket'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["GoBucket", "Arn" ] }, '/*']]
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["GoBucket", "Arn" ] }]]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-deploy-job-${self:provider.stage}-batch
+            Action: 's3:PutObject'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["GoBucket", "Arn" ] }, '/*']]
+
+  NodeBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: NodeBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - s3:GetObject
+            Resource:
+            - Fn::Join: ['', [{ "Fn::GetAtt": ["NodeBucket", "Arn" ] }, '/*']]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-archive-job-${self:provider.stage}-batch
+            Action:
+              - 's3:GetObject'
+              - 's3:ListBucket'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["NodeBucket", "Arn" ] }, '/*']]
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["NodeBucket", "Arn" ] }]]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-deploy-job-${self:provider.stage}-batch
+            Action: 's3:PutObject'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["NodeBucket", "Arn" ] }, '/*']]
+
+  CSharpBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: CSharpBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - s3:GetObject
+            Resource:
+            - Fn::Join: ['', [{ "Fn::GetAtt": ["CSharpBucket", "Arn" ] }, '/*']]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-archive-job-${self:provider.stage}-batch
+            Action:
+              - 's3:GetObject'
+              - 's3:ListBucket'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["CSharpBucket", "Arn" ] }, '/*']]
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["CSharpBucket", "Arn" ] }]]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-deploy-job-${self:provider.stage}-batch
+            Action: 's3:PutObject'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["CSharpBucket", "Arn" ] }, '/*']]
+
+  LanguagesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: LanguagesBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action:
+              - s3:GetObject
+            Resource:
+            - Fn::Join: ['', [{ "Fn::GetAtt": ["LanguagesBucket", "Arn" ] }, '/*']]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-archive-job-${self:provider.stage}-batch
+            Action:
+              - 's3:GetObject'
+              - 's3:ListBucket'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["LanguagesBucket", "Arn" ] }, '/*']]
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["LanguagesBucket", "Arn" ] }]]
+          - Effect: Allow
+            Principal:
+              AWS: arn:aws:iam::${aws:accountId}:role/docs-deploy-job-${self:provider.stage}-batch
+            Action: 's3:PutObject'
+            Resource:
+              - Fn::Join: ['', [{ "Fn::GetAtt": ["LanguagesBucket", "Arn" ] }, '/*']]
