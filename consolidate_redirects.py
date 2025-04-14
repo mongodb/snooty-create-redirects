@@ -114,6 +114,7 @@ def writeSortedRedirectsToFiles(sorted_page_redirects, s3_bucket_redirects_list)
 
 
 
+#TODO
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--bucket", default= "docs-mongodb-org-dotcomprd", help="Which bucket to to look in", type=str)
@@ -141,13 +142,6 @@ def main() -> None:
 
 
     writeSortedRedirectsToFiles(sorted_page_redirects, s3_bucket_redirects_list)
-
-
-    # Find redirects that are unexecutable because a bucket-level redirect executed first
-    # unexecutable_redirects= find_unexecutable_redirects(sorted_page_redirects, s3_bucket_redirects_list)
-    # print(unexecutable_redirects)
-    # print("Number of unexecutable redirects:", len(unexecutable_redirects))
-
 
 
 

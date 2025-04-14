@@ -4,9 +4,6 @@ import boto3
 import os
 
 
-
-
-
 def get_all_redirect_files(directory: str)-> list:
     """Gets a list of all files in a directory.
     
@@ -58,7 +55,7 @@ def main() -> None:
             file = json.load(file)
             for redirect in file:
                 origin, destination = normalize(redirect["origin"], redirect["destination"])
-                ##add raw redirect comment back in??
+                ## add raw redirect comment back in??
                 output_rules.append("\n[[redirects]] \rfrom = \""+ origin + "\"\rto = \""+ destination + "\"\r\r")
 
         txt_file = SOURCE_FILE.replace("json", "txt")

@@ -9,6 +9,13 @@ from convert_redirects_to_netlify import normalize
 
 
 
+def compile_list(redirects: Dict[str, list[tuple]])->List[tuple]:
+    compiled_redirects = []
+    for redirect_chunk in list(redirects.values()):
+        for origin, destination in redirect_chunk:
+            compiled_redirects.append((origin, destination))
+    return compiled_redirects
+
 ##  Input: 
 #       redirects: list of dictionaries where key is indices of s3 object keys, values are dictionaries of redirects
 #  [{ 0-100: {
@@ -46,31 +53,30 @@ def sort_by_project(redirects: list)-> Dict[str, List[tuple]]:
 
 
 
-
-def compile_list(redirects: Dict[str, list[tuple]])->List[tuple]:
-    compiled_redirects = []
-    for redirect_chunk in list(redirects.values()):
-        for origin, destination in redirect_chunk:
-            compiled_redirects.append((origin, destination))
-    return compiled_redirects
-
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--bucket", default= "docs-mongodb-org-dotcomprd", help="Which bucket to to look in", type=str)
+    parser.add_argument("--bucket", default= "docs-mongodb-org-dotcomprd", help= "Which bucket to to look in", type=str)
+    parser.add_argument("--write", default= True, help= "Whether to write the output to a file", type=bool)
+
     args = parser.parse_args()
     bucket = args.bucket
+    write_to_file = args.write
 
     redirects = json.load(open(f"scraped-redirects/{bucket}-redirects.json", "r"))
 
+    ## Compile all of the redirects into a list of tuple-redirects
     compiled_redirects = compile_list(redirects)
     
-    # Sort object redirects by project
-    sorted_page_redirects = sort_by_project(compiled_redirects)
-    for project, redirects in sorted_page_redirects.items():
-        fileName = project.replace("/", "-")
-        with open(f"scraped-redirects/sorted/{fileName}.json", "w") as file:
+    ## Convert list of redirects-as-tuples into a dictionary, each key as the project of the redirect origin
+    ## (except manual, which is keyed by version)
+    sorted_page_redirects: Dict[str, List[tuple]] = sort_by_project(compiled_redirects)
+
+    # Write each redirect to its own file 
+    if write_to_file:
+        for project, redirects in sorted_page_redirects.items():
+            fileName = project.replace("/", "-")
+            with open(f"scraped-redirects/sorted/{fileName}.json", "w") as file:
                 file.write(json.dumps(list(redirects)))
-    return sorted_page_redirects
 
 
 if __name__ == "__main__":
