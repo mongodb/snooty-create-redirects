@@ -50,7 +50,7 @@ def normalize(origin: str, destination: str) -> tuple[str, str]:
 
 
 def convert(source_file_name: str):
-    """Converts
+    """Converts redirect tuples to Netlify format
 
     Args:
     origin: origin string of a redirect

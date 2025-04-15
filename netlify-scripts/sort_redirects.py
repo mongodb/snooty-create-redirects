@@ -12,29 +12,28 @@ def compile_list(redirects: Dict[str, list[tuple]]) -> List[tuple]:
     return compiled_redirects
 
 
-##  Input:
-#       redirects: list of dictionaries where key is indices of s3 object keys, values are dictionaries of redirects
-#  [{ 0-100: {
-#       "docs/drivers/php/laravel-mongodb/v4.3/sessions/index.html": "https://www.mongodb.com/docs/drivers/php/laravel-mongodb/v4.3/",
-#       "docs/drivers/php/laravel-mongodb/v4.3/vector-search/index.html": "https://www.mongodb.com/docs/drivers/php/laravel-mongodb/v4.3/",
-#       "docs/drivers/php/laravel-mongodb/v4.4/atlas-search/index.html": "https://www.mongodb.com/docs/drivers/php/laravel-mongodb/v4.4/",
-#     }},
-#     { 100-200: {
-#         "docs/drivers/php/laravel-mongodb/v4.3/retrieve/index.html": "https://www.mongodb.com/docs/drivers/php/laravel-mongodb/v4.3/fundamentals/read-operations/",
-#        "docs/drivers/php/laravel-mongodb/v4.3/scout/index.html": "https://www.mongodb.com/docs/drivers/php/laravel-mongodb/v4.3/",
-#     }}]
-#       project: The project name we'd like to get all redirects for. If no project name is specified, defaults to "all" so that all redirects are sorted into projects
-
-##  Output: dictionary with "docs/<project_name>" as key and list of dictionaries, which are the redirects associated with that project as value
-#   { docs/guides:
-#       ["docs/charts/administration/backup-and-restore-keys/index.html":"https://www.mongodb.com/docs/charts/", "docs/charts/administration/configure-https-deployment/index.html", "https://www.mongodb.com/docs/charts/"]
-#     docs/mongoid:
-#       ["docs/mongoid/5.4/index.html", "https://www.mongodb.com/docs/mongoid/current/"]
-#   }
-
-
-# Accepts list of tuples
 def sort_by_project(redirects: list) -> Dict[str, List[tuple]]:
+    """  Sorts all redirects by projects
+    Inputs:
+        redirects: a dictionary where key is indices of s3 object keys+ subdir if specified, values are dictionaries of redirects
+            { 0-100: [
+            ("docs/drivers/php/laravel-mongodb/v4.3/sessions/index.html", "https://www.mongodb.com/docs/drivers/php/laravel-mongodb/v4.3/")
+            ("docs/drivers/php/laravel-mongodb/v4.3/vector-search/index.html", "https://www.mongodb.com/docs/drivers/php/laravel-mongodb/v4.3/")
+            ("docs/drivers/php/laravel-mongodb/v4.4/atlas-search/index.html", "https://www.mongodb.com/docs/drivers/php/laravel-mongodb/v4.4/"),
+            ],
+            100-200: [
+            ("docs/drivers/php/laravel-mongodb/v4.3/retrieve/index.html", "https://www.mongodb.com/docs/drivers/php/laravel-mongodb/v4.3/fundamentals/read-operations/",
+            ("docs/drivers/php/laravel-mongodb/v4.3/scout/index.html", "https://www.mongodb.com/docs/drivers/php/laravel-mongodb/v4.3/)",
+            ]}
+        project: The project name we'd like to get all redirects for. If no project name is specified, defaults to "all" so that all redirects are sorted into projects
+
+    Output: dictionary with "docs/<project_name>" as keys and list of redirect tuples as the values'
+        { docs/guides:
+        [("docs/charts/administration/backup-and-restore-keys/index.html","https://www.mongodb.com/docs/charts/"), "docs/charts/administration/configure-https-deployment/index.html", "https://www.mongodb.com/docs/charts/"]
+        docs/mongoid:
+        ["docs/mongoid/5.4/index.html", "https://www.mongodb.com/docs/mongoid/current/"]
+        }"
+    """
     redirects_by_bucket: Dict[str, List[tuple]] = {}
     for origin, destination in redirects:
         if origin.find("docs/") == 0:

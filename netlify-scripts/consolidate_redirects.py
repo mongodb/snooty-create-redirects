@@ -71,10 +71,8 @@ def find_unexecutable_redirects(
     for page_level_redirect in project_redirects:
         origin = list(page_level_redirect)[0]
         executable = True
-        # Checks if there is a conflicting bucket-level redirect for each page-level redirect
         for bucket_redirect in s3_bucket_redirects_list:
             # If one of the bucket level redirects is present in the origin url, the redirect will never execute
-            # POSSIBLY ADD SLASH HERE, test "docs/compass/v1 xxx- " REDIRECT THING, does the redirect capture it??
             if origin.find(bucket_redirect[0]) != -1:
                 unexecutable_redirects.setdefault(bucket_redirect, [])
                 unexecutable_redirects[bucket_redirect] = unexecutable_redirects[
@@ -139,11 +137,10 @@ def writeSortedRedirectsToFiles(
             if len(unexecutable_redirects):
                 unexecutable_redirects_list.append(unexecutable_redirects)
         else:
-            # add conditional so that only writes to own file for projects that have a project name that makes sense. otherwise just write to a big dump file
+            # TODO: add check so that only writes to file for projects that have a project name that makes sense
             with open(
                 f"scraped-redirects/sorted/extraneous-redirects.json", "a"
             ) as file:
-                # convert extraneous redirects to set if want to do only for a specific project and then add new redirects to script then write to file
                 file.write(json.dumps(sorted_page_redirects[project]))
         if len(unexecutable_redirects):
             with open(
@@ -153,7 +150,6 @@ def writeSortedRedirectsToFiles(
     return
 
 
-# TODO
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -195,15 +191,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-# group redirects by bucket
-# separate out "bad" or unecessary redirects (ones like "docs/current//reference/command/dbStats/index.html": "https://www.mongodb.com/docs/current/reference/command/dbStats")
-# find redirects captured by bucket-level redirects
-# check if we should add slash to end of bucket level redirect origin comparing to
-# verify assumptions manually
-
-# remove above categories of redirects
 
 # def create_bucket_redirects_list(routing_rules: list) -> set:
 #     bucket_redirects_list = set()
