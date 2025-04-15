@@ -13,6 +13,7 @@ def test_redirect(origin: str, destination: str)-> bool:
         resp.close()
         return False
     else:
+        print(f"SUCCESS: {origin} -> {origin}, found {resp.headers['Location']}")
         resp.close()
         return True
     

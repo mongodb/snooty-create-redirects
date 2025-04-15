@@ -7,7 +7,9 @@ __pycache__/
 *.so
 
 # Files generated from scraping redirects
-scraped-redirects/
+resources/scraped-redirects/sorted
+resources/scraped-redirects/unexecutable
+
 
 
 # Distribution / packaging

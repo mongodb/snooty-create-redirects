@@ -2,12 +2,7 @@
 import argparse
 import json
 from os import path
-import yaml
 from typing import List, Tuple, Dict
-
-from convert_redirects_to_netlify import normalize
-
-
 
 def compile_list(redirects: Dict[str, list[tuple]])->List[tuple]:
     compiled_redirects = []

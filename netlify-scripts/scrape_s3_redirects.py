@@ -3,18 +3,17 @@ import boto3
 import datetime
 import time
 import json
-from pathlib import Path
 import botocore
+import yaml
+import os
 
-object_keys_file = "scraped-redirects/keys.txt"
+object_keys_file = "resources/scraped-redirects/keys.json"
 
 
 def extractKey(s3_object) -> list:
     return s3_object.key
 
 
-#TODO: convert this to a dictionary with a list of dictionaries
-#TODO: append, not overwrite, if bucket key doesn't already exist. otherwise overwrite
 def write_bucket_objects_list(bucket: str ) -> list:
     print(f"Getting complete list of objects for bucket {bucket}")
     bucketObj = boto3.session.Session().resource("s3").Bucket(bucket)
@@ -26,15 +25,16 @@ def write_bucket_objects_list(bucket: str ) -> list:
     f.write(json.dumps(keys))
     return keys[bucket]
 
-def get_bucket_objects_list( bucket: str, subdir: str, first_index: int, last_index: int, refresh= True) -> list:
-    f = open(f"scraped-redirects/keys.txt")
+def get_bucket_objects_list(bucket: str, subdir: str, first_index: int, last_index: int, refresh= True) -> list:
+    f = open(object_keys_file, "r")
 
-    object_keys_list =json.load(f)
-    if not refresh and object_keys_list[bucket]:
-        # If there already exists the list of objects in the given bucket and we don't set refresh to true, 
-        # then set the list of objects to it
+    if os.path.exists(object_keys_file) and os.path.getsize(object_keys_file) != 0:
+        keys = json.load(f)
+        type(keys)
+    # If there already exists the list of objects in the given bucket and we don't set refresh to true, then set the list of objects to it
+    if not refresh and keys[bucket]:
         from_string = "local file scraped-redirects/keys.txt"
-        objects_list = object_keys_list[bucket]
+        objects_list = keys[bucket]
     else:
         objects_list = write_bucket_objects_list(bucket)
         from_string = "s3"
@@ -64,7 +64,7 @@ def writeRedirectsToFile(pregenerated_redirects: dict, redirects: list, key: str
     return pregenerated_redirects
 
 
-def find_redirects(bucket: str, keys: list, s3_connection: boto3.client)->dict:
+def find_redirects(bucket: str, keys: list, s3_connection: boto3.client)->list[tuple]:
     redirects = []
 
     print(f"Beginning to iterate over objects keys to find all redirect objects")
@@ -94,7 +94,7 @@ def find_redirects(bucket: str, keys: list, s3_connection: boto3.client)->dict:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--bucket", default = "docs-mongodb-org-dotcomprd", help="Which bucket to to look in", type=str)
-    parser.add_argument("--subdir", help = "Specify the subdir in which you'd like to retrieve redirects", type = str)
+    parser.add_argument("--subdir", default = "docs", help = "Specify the subdir in which you'd like to retrieve redirects", type = str)
     parser.add_argument("--firstIndex", default = 0, help="First index for objects", type=int)
     parser.add_argument("--lastIndex", help="Last index for objects", type=int)
     parser.add_argument("--keyRefresh", default = True, help = "Whether to refresh the list of object keys for the given bucket")
@@ -112,21 +112,19 @@ def main() -> None:
     now = datetime.datetime.now()
     print(f"Current date and time using datetime: {now}")
 
-    keys = get_bucket_objects_list(key_refresh, bucket, subdir, first_index, last_index)
+    keys = get_bucket_objects_list( bucket, subdir, first_index, last_index, key_refresh)
 
     s3_connection = boto3.session.Session().client("s3")
     redirects_file = open(
-        f"scraped-redirects/{bucket}-redirects.json", "r+"
+        f"resources/scraped-redirects/{bucket}-redirects.json", "r+"
     )
     pregenerated_redirects = json.load(redirects_file)
     redirects_file.seek(0)
 
     redirects_file_key = f"{first_index}-{last_index}" if not subdir else f"{subdir}, {first_index}-{last_index}"
 
-    ##TODO- should be able to do this for all of the redirects of a certain bucket(i think it does that as long as first and last index aren't specified??)
-    ##TODO- should be sorted
-    redirects = find_redirects(bucket, keys, s3_connection, redirects_file, redirects_file_key)
-    status = writeRedirectsToFile(pregenerated_redirects, redirects, f"{redirects_file_key}", redirects_file)
+    redirects = find_redirects(bucket, keys, s3_connection)
+    if len(redirects): writeRedirectsToFile(pregenerated_redirects, redirects, f"{redirects_file_key}", redirects_file) 
     end_time = time.time()
     elapsed_time = end_time - start_time
     print(f"Elapsed time: {elapsed_time} seconds")
