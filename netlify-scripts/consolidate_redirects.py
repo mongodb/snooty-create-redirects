@@ -7,16 +7,51 @@ from sort_redirects import sort_by_project
 from typing import List, Tuple, Dict, Set
 
 
-
-# List of all projects in dotcomprd 
-bucket_keys= ["docs/atlas-open-service-broker", "docs/bi-connector", "docs/charts", "docs/mongodb-intellij", "docs/drivers/php/laravel-mongodb", "docs/cloud-manager", "docs/ops-manager", "docs/kubernetes-operator","docs/mongodb-analyzer", "docs/spark-connector", "docs/drivers/rust","docs/ruby-driver", "docs/php-library", "docs/mongoid", "docs/mongodb-vscode", "docs/mongodb-shell", "docs/mongocli","docs/meta","docs/drivers/kotlin/coroutine", "docs/kafka-connector", "docs/guides", "docs/entity-framework", "docs/drivers", "docs/relational-migrator", "docs/404", "docs/datalake", "docs/database-tools", "docs/csfle-merge"
-"docs/compass", "docs/cluster-to-cluster-sync"]
+# List of all projects in dotcomprd
+bucket_keys = [
+    "docs/atlas-open-service-broker",
+    "docs/bi-connector",
+    "docs/charts",
+    "docs/mongodb-intellij",
+    "docs/drivers/php/laravel-mongodb",
+    "docs/cloud-manager",
+    "docs/ops-manager",
+    "docs/kubernetes-operator",
+    "docs/mongodb-analyzer",
+    "docs/spark-connector",
+    "docs/drivers/rust",
+    "docs/ruby-driver",
+    "docs/php-library",
+    "docs/mongoid",
+    "docs/mongodb-vscode",
+    "docs/mongodb-shell",
+    "docs/mongocli",
+    "docs/meta",
+    "docs/drivers/kotlin/coroutine",
+    "docs/kafka-connector",
+    "docs/guides",
+    "docs/entity-framework",
+    "docs/drivers",
+    "docs/relational-migrator",
+    "docs/404",
+    "docs/datalake",
+    "docs/database-tools",
+    "docs/csfle-merge" "docs/compass",
+    "docs/cluster-to-cluster-sync",
+]
 # List of non-numerical docs branches
-docs_branches = ["docs/core", "docs/master", "docs/current", "docs/rapid", "docs/upcoming", "docs/manual", "docs-stable"]
+docs_branches = [
+    "docs/core",
+    "docs/master",
+    "docs/current",
+    "docs/rapid",
+    "docs/upcoming",
+    "docs/manual",
+    "docs-stable",
+]
 
 
-
-def create_s3_bucket_redirects(routing_rules: list)-> list[tuple]:
+def create_s3_bucket_redirects(routing_rules: list) -> list[tuple]:
     s3_bucket_redirects_list = []
     for item in routing_rules:
         origin = item["Condition"]["KeyPrefixEquals"]
@@ -26,9 +61,10 @@ def create_s3_bucket_redirects(routing_rules: list)-> list[tuple]:
 
     return s3_bucket_redirects_list
 
-                
 
-def find_unexecutable_redirects(project_redirects: list[tuple], s3_bucket_redirects_list: list[tuple])-> Tuple[Set[tuple], Dict[tuple, list[tuple]]]:
+def find_unexecutable_redirects(
+    project_redirects: list[tuple], s3_bucket_redirects_list: list[tuple]
+) -> Tuple[Set[tuple], Dict[tuple, list[tuple]]]:
     executable_redirects = set()
     unexecutable_redirects: dict = {}
 
@@ -41,44 +77,60 @@ def find_unexecutable_redirects(project_redirects: list[tuple], s3_bucket_redire
             # POSSIBLY ADD SLASH HERE, test "docs/compass/v1 xxx- " REDIRECT THING, does the redirect capture it??
             if origin.find(bucket_redirect[0]) != -1:
                 unexecutable_redirects.setdefault(bucket_redirect, [])
-                unexecutable_redirects[bucket_redirect] = unexecutable_redirects[bucket_redirect]+ [page_level_redirect]
+                unexecutable_redirects[bucket_redirect] = unexecutable_redirects[
+                    bucket_redirect
+                ] + [page_level_redirect]
                 executable = False
         if executable:
             executable_redirects.add(page_level_redirect)
     return (executable_redirects, unexecutable_redirects)
 
 
-def isValidProject(project: str)-> bool:
-    # TODO: add conditional for just being under "docs" (docs-landing) 
-    return bool(re.search("^(docs\/v)\d\.\d$", project)) or project in docs_branches or project in bucket_keys
+def isValidProject(project: str) -> bool:
+    # TODO: add conditional for just being under "docs" (docs-landing)
+    return (
+        bool(re.search("^(docs\/v)\d\.\d$", project))
+        or project in docs_branches
+        or project in bucket_keys
+    )
 
-def consolidate(redirects: list[tuple])-> Dict[tuple, int]:
-    potential_bucket_keys= {}
+
+def consolidate(redirects: list[tuple]) -> Dict[tuple, int]:
+    potential_bucket_keys = {}
     for redirect in redirects:
         origin, destination = normalize(redirect[0], redirect[1])
         for i in range(1, (min(len(origin.split("/")), len(destination.split("/"))))):
             origin_branch = origin.split("/")[i]
             destination_branch = destination.split("/")[i]
             if origin.replace(origin_branch, destination_branch) == destination:
-                val = potential_bucket_keys.setdefault((origin_branch, destination_branch), 0 )
-                potential_bucket_keys[(origin_branch, destination_branch)] = val+1
+                val = potential_bucket_keys.setdefault(
+                    (origin_branch, destination_branch), 0
+                )
+                potential_bucket_keys[(origin_branch, destination_branch)] = val + 1
 
-    bucket_keys = {pair: count for pair, count in potential_bucket_keys.items() if not count==1}
-    
+    bucket_keys = {
+        pair: count for pair, count in potential_bucket_keys.items() if not count == 1
+    }
+
     if len(bucket_keys):
         print(f"Consolidatable redirect paths: {bucket_keys}")
     return bucket_keys
 
-def writeSortedRedirectsToFiles(sorted_page_redirects: Dict[str, List[tuple]], s3_bucket_redirects_list: list)-> None:
-    unexecutable_redirects_list=[]
-    extraneous_redirects = json.load(open(
-        f"scraped-redirects/sorted/extraneous-redirects.json", "a"
-    ))
+
+def writeSortedRedirectsToFiles(
+    sorted_page_redirects: Dict[str, List[tuple]], s3_bucket_redirects_list: list
+) -> None:
+    unexecutable_redirects_list = []
+    extraneous_redirects = json.load(
+        open(f"scraped-redirects/sorted/extraneous-redirects.json", "a")
+    )
     extraneous_redirects.seek(0)
     for project in sorted_page_redirects.keys():
         valid_project_name = isValidProject(project)
         if valid_project_name:
-            executable_redirects, unexecutable_redirects = find_unexecutable_redirects(sorted_page_redirects[project], s3_bucket_redirects_list)
+            executable_redirects, unexecutable_redirects = find_unexecutable_redirects(
+                sorted_page_redirects[project], s3_bucket_redirects_list
+            )
             consolidate(executable_redirects)
             print(len(unexecutable_redirects), len(executable_redirects), project)
             fileName = project.replace("/", "-")
@@ -88,21 +140,28 @@ def writeSortedRedirectsToFiles(sorted_page_redirects: Dict[str, List[tuple]], s
                 unexecutable_redirects_list.append(unexecutable_redirects)
         else:
             # add conditional so that only writes to own file for projects that have a project name that makes sense. otherwise just write to a big dump file
-            with open(f"scraped-redirects/sorted/extraneous-redirects.json", "a") as file:
-                #convert extraneous redirects to set if want to do only for a specific project and then add new redirects to script then write to file
+            with open(
+                f"scraped-redirects/sorted/extraneous-redirects.json", "a"
+            ) as file:
+                # convert extraneous redirects to set if want to do only for a specific project and then add new redirects to script then write to file
                 file.write(json.dumps(sorted_page_redirects[project]))
         if len(unexecutable_redirects):
-            with open(f"scraped-redirects/unexecutable/{fileName}.json", "w") as unexecutable_file:
+            with open(
+                f"scraped-redirects/unexecutable/{fileName}.json", "w"
+            ) as unexecutable_file:
                 unexecutable_file.write(json.dumps(unexecutable_redirects))
     return
-        
 
 
-
-#TODO
+# TODO
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--bucket", default= "docs-mongodb-org-dotcomprd", help="Which bucket to to look in", type=str)
+    parser.add_argument(
+        "--bucket",
+        default="docs-mongodb-org-dotcomprd",
+        help="Which bucket to to look in",
+        type=str,
+    )
     args = parser.parse_args()
     bucket = args.bucket
 
@@ -118,40 +177,33 @@ def main() -> None:
     # Get and format bucket redirects from S3 docs-mongodb-org-dotcomprd bucket
     with open("s3_buckets.json", "r") as s3_file:
         buckets = yaml.safe_load(s3_file)
-        s3_bucket_redirects_list= create_s3_bucket_redirects(buckets)
+        s3_bucket_redirects_list = create_s3_bucket_redirects(buckets)
 
     redirects: str = json.load(open(f"scraped-redirects/{bucket}-redirects.json", "r"))
 
     # Sort object redirects by project
-    sorted_page_redirects: Dict[str, List[tuple]]  = sort_by_project(redirects)
+    sorted_page_redirects: Dict[str, List[tuple]] = sort_by_project(redirects)
 
-    executable_redirects, unexecutable_redirects = find_unexecutable_redirects(sorted_page_redirects[subdir], s3_bucket_redirects_list)
+    executable_redirects, unexecutable_redirects = find_unexecutable_redirects(
+        sorted_page_redirects[subdir], s3_bucket_redirects_list
+    )
     print(f"{len(unexecutable_redirects)} unexecutable redirects found")
-    consolidation_dict =  consolidate(executable_redirects)
-
+    consolidation_dict = consolidate(executable_redirects)
 
     writeSortedRedirectsToFiles(sorted_page_redirects, s3_bucket_redirects_list)
-
-
-
-
 
 
 if __name__ == "__main__":
     main()
 
 
+# group redirects by bucket
+# separate out "bad" or unecessary redirects (ones like "docs/current//reference/command/dbStats/index.html": "https://www.mongodb.com/docs/current/reference/command/dbStats")
+# find redirects captured by bucket-level redirects
+# check if we should add slash to end of bucket level redirect origin comparing to
+# verify assumptions manually
 
-
-
-
-#group redirects by bucket
-#separate out "bad" or unecessary redirects (ones like "docs/current//reference/command/dbStats/index.html": "https://www.mongodb.com/docs/current/reference/command/dbStats")
-#find redirects captured by bucket-level redirects
-    # check if we should add slash to end of bucket level redirect origin comparing to
-    # verify assumptions manually
-
-#remove above categories of redirects
+# remove above categories of redirects
 
 # def create_bucket_redirects_list(routing_rules: list) -> set:
 #     bucket_redirects_list = set()

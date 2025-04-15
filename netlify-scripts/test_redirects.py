@@ -2,7 +2,8 @@ import sys
 import requests
 import json
 
-def test_redirect(origin: str, destination: str)-> bool: 
+
+def test_redirect(origin: str, destination: str) -> bool:
     resp = requests.head(origin)
     if resp.status_code != 301:
         print(f"FAIL: {origin}")
@@ -16,28 +17,31 @@ def test_redirect(origin: str, destination: str)-> bool:
         print(f"SUCCESS: {origin} -> {origin}, found {resp.headers['Location']}")
         resp.close()
         return True
-    
-def prep_redirects_for_testing(redirects_list: list[tuple])-> list[tuple]:
+
+
+def prep_redirects_for_testing(redirects_list: list[tuple]) -> list[tuple]:
     rules = [
-            (f"https://www.mongodb.com/{redirect[0]}", redirect[1])
-            for redirect in redirects_list
-            ]
+        (f"https://www.mongodb.com/{redirect[0]}", redirect[1])
+        for redirect in redirects_list
+    ]
     return rules
 
-def test_all_redirects(redirects_list: list[tuple])-> tuple:
+
+def test_all_redirects(redirects_list: list[tuple]) -> tuple:
     rules = prep_redirects_for_testing(redirects_list)
     fails = 0
     successes = 0
     for rule_from, rule_to in rules:
         status = test_redirect(rule_from, rule_to)
         if status:
-            successes+=1
+            successes += 1
         else:
-            fails+=1
+            fails += 1
     print(f"SUCCESSES: {successes}")
     print(f"FAILS: {fails}")
-    
+
     return (successes, fails)
+
 
 def main() -> None:
     source_file = sys.argv[1]
