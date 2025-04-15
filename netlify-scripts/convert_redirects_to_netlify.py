@@ -64,7 +64,7 @@ def convert(source_file_name: str):
         file = json.load(file)
         for redirect in file:
             origin, destination = normalize(redirect["origin"], redirect["destination"])
-            ## Add a comment on what the raw redirect is??
+            ## Add a comment on what the raw redirect was??
             output_rules.append(
                 '\n[[redirects]] \rfrom = "'
                 + origin
