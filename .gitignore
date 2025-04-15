@@ -7,8 +7,8 @@ __pycache__/
 *.so
 
 # Files generated from scraping redirects
-resources/scraped-redirects/sorted
-resources/scraped-redirects/unexecutable
+netlify-scripts/resources/scraped-redirects/
+netlify-redirects
 
 
 
