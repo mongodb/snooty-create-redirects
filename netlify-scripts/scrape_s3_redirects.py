@@ -138,7 +138,9 @@ def main() -> None:
     now = datetime.datetime.now()
     print(f"Current date and time using datetime: {now}")
 
-    keys: list[str]= get_bucket_objects_list(bucket, subdir, first_index, last_index, key_refresh)
+    keys: list[str] = get_bucket_objects_list(
+        bucket, subdir, first_index, last_index, key_refresh
+    )
 
     s3_connection = boto3.session.Session().client("s3")
     redirects = find_redirects(bucket, keys, s3_connection)

@@ -48,9 +48,7 @@ def main():
     ## Get all redirects that exist on a given list of keys
     ## Returns list of tuples with each tuple of the form (<origin>, <destination>)
     redirects: list[tuple] = find_redirects(bucket, keys, s3_connection)
-    redirects_file = open(
-     f"scraped-redirects/{bucket}-redirects.json", "a+"
-    )
+    redirects_file = open(f"scraped-redirects/{bucket}-redirects.json", "a+")
     redirects_file_key: str = (
         f"{first_index}-{last_index}"
         if not subdir
@@ -61,7 +59,7 @@ def main():
         if os.path.getsize(f"resources/scraped-redirects/{bucket}-redirects.json") != 0
         else {}
     )
-    
+
     ## Add the new redirects to the list of redirects already retrieved for that bucket and write to the file
     # each entry represents an instance in which the script has been run locally
     all_redirects: Dict[str, list[tuple]] = writeRedirectsToFile(

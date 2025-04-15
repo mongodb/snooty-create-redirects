@@ -13,7 +13,7 @@ def compile_list(redirects: Dict[str, list[tuple]]) -> List[tuple]:
 
 
 def sort_by_project(redirects: list) -> Dict[str, List[tuple]]:
-    """  Sorts all redirects by projects
+    """Sorts all redirects by projects
     Inputs:
         redirects: a dictionary where key is indices of s3 object keys+ subdir if specified, values are dictionaries of redirects
             { 0-100: [
