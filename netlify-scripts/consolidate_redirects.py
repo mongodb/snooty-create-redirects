@@ -161,15 +161,6 @@ def main() -> None:
     args = parser.parse_args()
     bucket = args.bucket
 
-    # Get and format bucket redirects from buckets.yml from the autobuilder's yml file
-    # with open("buckets.yml", "r") as f:
-    #     buckets = yaml.safe_load(f)
-    #     routing_rules = buckets["Resources"]["DocsBucket"]["Properties"][
-    #         "WebsiteConfiguration"
-    #     ]["RoutingRules"]
-    # bucket_redirects_list = create_bucket_redirects_list(routing_rules)
-    # print(len(bucket_redirects_list))
-
     # Get and format bucket redirects from S3 docs-mongodb-org-dotcomprd bucket
     with open("s3_buckets.json", "r") as s3_file:
         buckets = yaml.safe_load(s3_file)
@@ -191,16 +182,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-# def create_bucket_redirects_list(routing_rules: list) -> set:
-#     bucket_redirects_list = set()
-#     for item in routing_rules:
-#         key_prefix = item["RoutingRuleCondition"]["KeyPrefixEquals"]
-#         origin = key_prefix.split("/", 1)[1]
-#         # prefix = find first slash and divide string there
-#         replacement = item["RedirectRule"]["ReplaceKeyPrefixWith"]
-#         destination = replacement.split("/", 1)[1]
-#         redirect_obj = (origin, destination)
-#         bucket_redirects_list.add(redirect_obj)
-
-#     return bucket_redirects_list
