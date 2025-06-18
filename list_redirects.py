@@ -148,26 +148,27 @@ for version in versions:
         # if previous redirect path is also in target version, use that existing previous redirect path
         # COLUMNS: to, from, old page redirect used, new page redirect used, not found
         if redirect_target_in_target_version in version_db[TARGET_VERSION]:
-            redirect_target = version_db[TARGET_VERSION][redirect_target_in_target_version]
-            if redirect_target:
-                # old page redirect exists, that target path has redirect in current version
-                print(
-                    f"{fully_qualified_key}\thttps://www.mongodb.com/{project['path']}{TARGET_VERSION}/{redirect_target}\t\TRUE"
-                )
-            else:
-                key_without_indexhtml = (
-                    redirect_target_in_target_version.removesuffix("/index.html") + "/"
-                )
-                # old page redirect exists, that target path exists in current version
-                print(
-                    f"{fully_qualified_key}\thttps://www.mongodb.com/{project['path']}{TARGET_VERSION}{key_without_indexhtml}\tTRUE\tTRUE"
-                )
+            print(f"{fully_qualified_key}\thttps://www.mongodb.com/{project['path']}{TARGET_VERSION}/")
+            # redirect_target = version_db[TARGET_VERSION][redirect_target_in_target_version]
+            # if redirect_target:
+            #     # old page redirect exists, that target path has redirect in current version
+            #     print(
+            #         f"{fully_qualified_key}\thttps://www.mongodb.com/{project['path']}{TARGET_VERSION}/{redirect_target}\t\TRUE"
+            #     )
+            # else:
+            #     key_without_indexhtml = (
+            #         redirect_target_in_target_version.removesuffix("/index.html") + "/"
+            #     )
+            #     # old page redirect exists, that target path exists in current version
+            #     print(
+            #         f"{fully_qualified_key}\thttps://www.mongodb.com/{project['path']}{TARGET_VERSION}{key_without_indexhtml}\tTRUE\tTRUE"
+            #     )
         elif key in version_db[TARGET_VERSION]:
             redirect_target = version_db[TARGET_VERSION][key]
             if redirect_target:
                 # old page exists in current, with a redirect in current
                 print(
-                    f"{fully_qualified_key}\thttps://www.mongodb.com/{project['path']}{TARGET_VERSION}/{redirect_target}\t\tTRUE"
+                    f"{fully_qualified_key}\thttps://www.mongodb.com/{project['path']}{TARGET_VERSION}/"
                 )
             else:
                 key_without_indexhtml = key.removesuffix("/index.html") + "/"
@@ -178,5 +179,5 @@ for version in versions:
         else:
             # old page, or its redirect target does not exist in current version
             print(
-                f"{prefix_to_full_url}{key}\thttps://www.mongodb.com/{project['path']}{TARGET_VERSION}/\t\t\tTRUE"
+                f"{prefix_to_full_url}{key}\thttps://www.mongodb.com/{project['path']}{TARGET_VERSION}/"
             )
