@@ -10,6 +10,8 @@ __pycache__/
 netlify-scripts/resources/scraped-redirects/
 netlify-redirects
 
+# Redirect files generated for manual
+netlify-scripts/manual/
 
 # Distribution / packaging
 .Python

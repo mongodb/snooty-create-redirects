@@ -2,7 +2,7 @@ import argparse
 import json
 import re
 import yaml
-from convert_redirects_to_netlify import normalize
+from utils import normalize
 from sort_redirects import sort_by_project
 from typing import List, Tuple, Dict, Set
 
@@ -50,6 +50,8 @@ docs_branches = [
     "docs-stable",
 ]
 
+active_branches = ['master', 'upcoming', 'v2.1', 'v2.0', 'current']
+#active_branches = ['']
 
 def create_s3_bucket_redirects(routing_rules: list) -> list[tuple]:
     s3_bucket_redirects_list = []
@@ -61,7 +63,7 @@ def create_s3_bucket_redirects(routing_rules: list) -> list[tuple]:
 
     return s3_bucket_redirects_list
 
-
+## Args: takes in list of redirects as list of tuples, list of tuples to compare against.
 def find_unexecutable_redirects(
     project_redirects: list[tuple], s3_bucket_redirects_list: list[tuple]
 ) -> Tuple[Set[tuple], Dict[tuple, list[tuple]]]:
@@ -93,26 +95,44 @@ def isValidProject(project: str) -> bool:
     )
 
 
-def consolidate(redirects: list[tuple]) -> Dict[tuple, int]:
+### Consolidates redirects based on if two criteria
+#1. Redirect would be "caught" by a bucket level redirect and therefore won't execute
+#2. Redirect is for a branch that is already downloadable
+## Accepts a list of redirects as an argument
+## Returns list of potential consolidation paths, invalid branches, and the list of consolidated redirects
+def consolidate(redirects: list[tuple]) :
     potential_bucket_keys = {}
+    invalid_branch_list = []
+    consolidated_redirects = set()
     for redirect in redirects:
         origin, destination = normalize(redirect[0], redirect[1])
-        for i in range(1, (min(len(origin.split("/")), len(destination.split("/"))))):
-            origin_branch = origin.split("/")[i]
-            destination_branch = destination.split("/")[i]
-            if origin.replace(origin_branch, destination_branch) == destination:
-                val = potential_bucket_keys.setdefault(
-                    (origin_branch, destination_branch), 0
-                )
-                potential_bucket_keys[(origin_branch, destination_branch)] = val + 1
+        origin_branch =origin.split("/")[3] 
+        if not origin_branch in active_branches:
+                print(origin_branch)
+                invalid_branch_list.append(redirect)
+        else:       
+            for i in range(1, (min(len(origin.split("/")), len(destination.split("/"))))):
+                origin_branch = origin.split("/")[i]
+                destination_branch = destination.split("/")[i]
+                if origin.replace(origin_branch, destination_branch) == destination:
+                    val = potential_bucket_keys.setdefault(
+                        (origin_branch, destination_branch), 0
+                    )
+                    potential_bucket_keys[(origin_branch, destination_branch)] = val + 1
+            
 
+    consolidated_redirects =  set(redirects) - set(invalid_branch_list)
+    print(f"length of consolidated redirects {len(consolidated_redirects)}")
+    print(f"length of manual captured redirects {len(invalid_branch_list)}")
+
+# change this to have a list of the redirects we're taking out
     bucket_keys = {
         pair: count for pair, count in potential_bucket_keys.items() if not count == 1
     }
 
     if len(bucket_keys):
         print(f"Consolidatable redirect paths: {bucket_keys}")
-    return bucket_keys
+    return bucket_keys, invalid_branch_list, consolidated_redirects
 
 
 def writeSortedRedirectsToFiles(

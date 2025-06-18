@@ -1,22 +1,7 @@
 import sys
-import requests
 import json
+from utils import test_redirect
 
-
-def test_redirect(origin: str, destination: str) -> bool:
-    resp = requests.head(origin)
-    if resp.status_code != 301:
-        print(f"FAIL: {origin}")
-        resp.close()
-        return False
-    elif resp.headers["Location"] != destination:
-        print(f"FAIL: {origin} -> {origin}, found {resp.headers['Location']}")
-        resp.close()
-        return False
-    else:
-        print(f"SUCCESS: {origin} -> {origin}, found {resp.headers['Location']}")
-        resp.close()
-        return True
 
 
 def prep_redirects_for_testing(redirects_list: list[tuple]) -> list[tuple]:

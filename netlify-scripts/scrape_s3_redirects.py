@@ -7,19 +7,20 @@ import botocore
 import yaml
 import os
 
-object_keys_file = "resources/scraped-redirects/keys.json"
+
 
 
 def extractKey(s3_object) -> list:
     return s3_object.key
 
 
-def write_bucket_objects_list(bucket: str) -> list:
+def write_bucket_objects_list(bucket: str, object_keys_file: str) -> list:
     print(f"Getting complete list of objects for bucket {bucket}")
     bucketObj = boto3.session.Session().resource("s3").Bucket(bucket)
     s3_objects = list(bucketObj.objects.all())
     keys = {bucket: sorted(list(map(extractKey, s3_objects)))}
     print(f"Number of objects in bucket: {len(s3_objects)}")
+    print(f"Number of objects in given subdir: {len(keys[bucket])}")
     f = open(object_keys_file, "w")
     f.write("\n")
     f.write(json.dumps(keys))
@@ -27,28 +28,32 @@ def write_bucket_objects_list(bucket: str) -> list:
 
 
 def get_bucket_objects_list(
-    bucket: str, subdir: str, first_index: int, last_index: int, refresh=True
+    bucket: str, subdir: str, first_index: int, last_index: int, refresh: bool
 ) -> list:
-    f = open(object_keys_file, "r")
-
+    object_keys_file = f"resources/scraped-redirects/{bucket}-keys.json"
+    f = open(object_keys_file, "w+")
     if os.path.exists(object_keys_file) and os.path.getsize(object_keys_file) != 0:
         keys = json.load(f)
-        type(keys)
+        
     # If there already exists the list of objects in the given bucket and we don't set refresh to true, then set the list of objects to it
     if not refresh and keys[bucket]:
         from_string = "local file scraped-redirects/keys.txt"
         objects_list = keys[bucket]
     else:
-        objects_list = write_bucket_objects_list(bucket)
+        objects_list = write_bucket_objects_list(bucket, object_keys_file)
         from_string = "s3"
+
     if subdir:
         specific_keys = []
         for key in objects_list:
             if key.startswith(subdir):
                 specific_keys.append(key)
         objects_list = specific_keys
+  
+    if last_index == 0:
+        last_index = len(objects_list)
     print(
-        f"Retrieved keys for {bucket} with subdir {subdir} from {from_string}. Returning keys from index {first_index} to {last_index}"
+        f"Retrieved keys for {bucket} with {len(objects_list)} keys for subdir {subdir} from {from_string}. Returning keys from index {first_index} to {last_index}"
     )
     return objects_list[first_index:last_index]
 
@@ -60,6 +65,7 @@ def writeRedirectsToFile(
         try:
             pregenerated_redirects.setdefault(key, [])
             pregenerated_redirects[key] = pregenerated_redirects[key] + redirects
+            print(f"Length of redirects for key {key} is {len(pregenerated_redirects[key])}")
             json_redirects = json.dumps(
                 pregenerated_redirects, sort_keys=True, indent=1
             )
@@ -82,6 +88,7 @@ def find_redirects(bucket: str, keys: list, s3_connection: boto3.client) -> list
                 response = s3_connection.head_object(Bucket=bucket, Key=key)
             except botocore.exceptions.ClientError as e:
                 print(f"Error connecting to S3: {e}")
+                print("redirects found:", redirects)
                 print("Please try refreshing credentials and check the bucket argument")
                 end_time = time.time()
                 print(f"End time: {end_time}")
@@ -121,15 +128,13 @@ def main() -> None:
         "--firstIndex", default=0, help="First index for objects", type=int
     )
     parser.add_argument("--lastIndex", help="Last index for objects", type=int)
-    parser.add_argument(
-        "--keyRefresh",
-        default=True,
-        help="Whether to refresh the list of object keys for the given bucket",
-    )
+    parser.add_argument("--keyRefresh", help="Whether to refresh the list of object keys for the given bucket")
+
+
 
     args = parser.parse_args()
     bucket = args.bucket
-    key_refresh = args.keyRefresh
+    key_refresh: bool = args.keyRefresh
     subdir = args.subdir
     first_index = args.firstIndex
     last_index = len(keys) - 1 if not args.lastIndex else args.lastIndex
@@ -145,14 +150,14 @@ def main() -> None:
     s3_connection = boto3.session.Session().client("s3")
     redirects = find_redirects(bucket, keys, s3_connection)
 
-    redirects_file = open(f"resources/scraped-redirects/{bucket}-redirects.json", "a+")
-    pregenerated_redirects = (
-        json.load(redirects_file)
-        if os.path.getsize(f"resources/scraped-redirects/{bucket}-redirects.json") != 0
-        else {}
-    )
+    redirects_file = open(f"resources/scraped-redirects/{bucket}-redirects.json", "r+")
+    if os.path.exists(f"resources/scraped-redirects/{bucket}-redirects.json") and os.path.getsize(f"resources/scraped-redirects/{bucket}-redirects.json") != 0:
+        pregenerated_redirects = json.load(redirects_file)
+    else: 
+        redirects_file = open(f"resources/scraped-redirects/{bucket}-redirects.json", "w+")
+        pregenerated_redirects = {}
+   
     redirects_file.seek(0)
-
     redirects_file_key = (
         f"{first_index}-{last_index}"
         if not subdir
