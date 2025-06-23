@@ -6,25 +6,24 @@ import pandas as pd
 rapid_versions = {'v5.1', 'v5.2', 'v5.3', 'v6.1', 'v6.2', 'v6.3', 'v7.1', 'v7.2', 'v7.3'}
 version = "v8.1"
 
-def main():
-    GENERATED_WILDCARDS = './generated-wildcards.csv'
-    wildcards_arr: list[list[str]] = pd.read_csv(GENERATED_WILDCARDS).values
-    redirects = get_associated_manual_version_redirects(version)
-    
-    output_list = remove_wildcard_captures(wildcards_arr, redirects)
-    print (len(output_list))
-    if version in rapid_versions:
-        version_page_levels, to_specific_manual_page = separate_page_levels(output_list, version)
-        print(len(version_page_levels), len(to_specific_manual_page))
 
-        df = pd.DataFrame(version_page_levels, columns = ['Origin', 'Redirect'])
-        df.to_csv(f"./rapids-internal-redirects/{version}-discards.csv", index= False)
-        df = pd.DataFrame(to_specific_manual_page, columns = ['Origin', 'Redirect'])
-        df.to_csv(f"./wildcard-outputs/version-{version}.csv", index= False)
+## Assumes that each path has a leading slash, otherwise index from 2
+def get_branch(redirect: str, index = 3):
+    try:
+        branch = redirect.split("/")[index]
+    except IndexError as e: 
+        print(redirect, branch, index)
+    return branch
 
-    else:
-        df = pd.DataFrame(output_list, columns = ['Origin', 'Redirect'])
-        df.to_csv(f"./wildcard-outputs/version-{version}.csv", index= False)
+
+def add_path_placeholder(path: str, branch_index: int, replacement: str):
+    branch = get_branch(path, branch_index)
+    new_path = path.replace(branch, replacement)
+    return new_path
+
+## Adds ":version" in place of the branch name
+def add_placeholder(redirect: tuple, branch_index: int, replacement: str):
+    return add_path_placeholder(redirect[0], branch_index, replacement), add_path_placeholder(redirect[1], branch_index, replacement)
 
 def separate_page_levels(redirects: list, version: str):
     version_page_levels = []
@@ -172,6 +171,29 @@ def convert_redirect_format(source_file_name: str):
     with open(DESTINATION_FILE, "w") as f:
         f.write("".join(output_rules))
 
+
+
+
+
+def main():
+    GENERATED_WILDCARDS = './generated-wildcards.csv'
+    wildcards_arr: list[list[str]] = pd.read_csv(GENERATED_WILDCARDS).values
+    redirects = get_associated_manual_version_redirects(version)
+    
+    output_list = remove_wildcard_captures(wildcards_arr, redirects)
+    print (len(output_list))
+    if version in rapid_versions:
+        version_page_levels, to_specific_manual_page = separate_page_levels(output_list, version)
+        print(len(version_page_levels), len(to_specific_manual_page))
+
+        df = pd.DataFrame(version_page_levels, columns = ['Origin', 'Redirect'])
+        df.to_csv(f"./rapids-internal-redirects/{version}-discards.csv", index= False)
+        df = pd.DataFrame(to_specific_manual_page, columns = ['Origin', 'Redirect'])
+        df.to_csv(f"./wildcard-outputs/version-{version}.csv", index= False)
+
+    else:
+        df = pd.DataFrame(output_list, columns = ['Origin', 'Redirect'])
+        df.to_csv(f"./wildcard-outputs/version-{version}.csv", index= False)
 
 
 if __name__ == "__main__":
