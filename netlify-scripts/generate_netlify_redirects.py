@@ -23,6 +23,7 @@ def write_to_csv(redirects: list[tuple], output_file_name: str) -> list[str]:
     DESTINATION_FILE_CSV = f"../netlify-redirects/{output_file_name}.csv"
     csv_output_rules = []
     print("writing to csv")
+    print(len(redirects))
     for redirect in redirects:
         origin, destination = normalize(redirect[0], redirect[1])
         csv_output_rules.append((origin, destination))
@@ -57,13 +58,16 @@ def convert(redirects: list[tuple], output_file_name: str) -> list[str]:
 # TODO: add parser args
 def main():
     KEY_REFRESH = True
-    bucket = "docs-atlas-dotcomprd"
+    bucket = "docs-mongodb-org-dotcomprd"
     # Subdir must be a project(ex: "docs/bi-connector") or a valid docs version
-    subdir = "docs/atlas-cli"
-    output_file_name = "netlify-atlas-cli"
+    subdir = "docs/cloud-manager"
+    output_file_name = "netlify-cloud-manager-2"
     # 168197
-    last_index = 168197
+    # last_index = 168197
+    last_index = 500000
     first_index = 0
+    # leave empty if unversioned
+    online_branches = []
     s3_connection = boto3.session.Session().client("s3")
 
 
@@ -87,36 +91,38 @@ def main():
     )
 
 
-    redirects_file = open(f"resources/scraped-redirects/{bucket}-redirects.json", "r+")
-    if os.path.exists(f"resources/scraped-redirects/{bucket}-redirects.json") and os.path.getsize(f"resources/scraped-redirects/{bucket}-redirects.json") != 0:
-        pregenerated_redirects = json.load(redirects_file)
-    else: 
-        redirects_file = open(f"resources/scraped-redirects/{bucket}-redirects.json", "w+")
-        pregenerated_redirects = {}
+    # redirects_file = open(f"resources/scraped-redirects/{bucket}-redirects.json", "r+")
+    # if os.path.exists(f"resources/scraped-redirects/{bucket}-redirects.json") and os.path.getsize(f"resources/scraped-redirects/{bucket}-redirects.json") != 0:
+    #     pregenerated_redirects = json.load(redirects_file)
+    # else: 
+    #     redirects_file = open(f"resources/scraped-redirects/{bucket}-redirects.json", "w+")
+    #     pregenerated_redirects = {}
 
 
-    ## Add the new redirects to the list of redirects already retrieved for that bucket and write to the file
-    # each entry represents an instance in which the script has been run locally
-    all_redirects: Dict[str, list[tuple]] = writeRedirectsToFile(
-        pregenerated_redirects, redirects, f"{redirects_file_key}", redirects_file
-    )
+    # ## Add the new redirects to the list of redirects already retrieved for that bucket and write to the file
+    # # each entry represents an instance in which the script has been run locally
+    # all_redirects: Dict[str, list[tuple]] = writeRedirectsToFile(
+    #     pregenerated_redirects, redirects, f"{redirects_file_key}", redirects_file
+    # )
 
     ## Compile all of the redirects into a list of tuple-redirects
-    compiled_redirects: List[tuple] = compile_list(all_redirects)
+    # compiled_redirects: List[tuple] = compile_list(all_redirects)
     ## Convert list of redirects-as-tuples into a dictionary, each key as the project of the redirect origin
     ## (Except manual, which is keyed by version)
-    sorted_page_redirects: Dict[str, List[tuple]] = sort_by_project(compiled_redirects)
-    # print("sorted_page_redirects", len(sorted_page_redirects[subdir]))
-
+    # sorted_page_redirects: Dict[str, List[tuple]] = sort_by_project(compiled_redirects)
+    # print(sorted_page_redirects.keys())
     ## Get and format bucket redirects from S3 docs-mongodb-org-dotcomprd bucket
     with open("resources/s3_buckets.json", "r") as s3_file:
         buckets = yaml.safe_load(s3_file)
         s3_bucket_redirects_list = create_s3_bucket_redirects(buckets)
+    # executable_redirects, unexecutable_redirects = find_unexecutable_redirects(
+    #     sorted_page_redirects[subdir], s3_bucket_redirects_list
+    # )
     executable_redirects, unexecutable_redirects = find_unexecutable_redirects(
-        sorted_page_redirects[subdir], s3_bucket_redirects_list
+        redirects, s3_bucket_redirects_list
     )
     print(f"{len(unexecutable_redirects)} unexecutable redirects found")
-    bucket_keys, manual_wildcard_redirects, consolidated_redirects = consolidate(executable_redirects)
+    bucket_keys, manual_wildcard_redirects, consolidated_redirects = consolidate(executable_redirects, online_branches)
 
     successes, failures = test_all_redirects(executable_redirects)
     convert(executable_redirects, output_file_name)

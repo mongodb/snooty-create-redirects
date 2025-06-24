@@ -30,7 +30,7 @@ def convert_csv_to_toml(source_file_path: str, destination_file_path: str, versi
         f.write("".join(output_rules))
 
 def main():
-    file_name = 'netlify-bi-connector-current-redirects'
+    file_name = 'netlify-kafka-connector-redirects-wildcards'
 
     source_file_path = f'../netlify-redirects/{file_name}.csv'
     if not os.path.isfile(source_file_path):

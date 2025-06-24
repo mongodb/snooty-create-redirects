@@ -50,8 +50,7 @@ docs_branches = [
     "docs-stable",
 ]
 
-active_branches = ['master', 'upcoming', 'v2.1', 'v2.0', 'current']
-#active_branches = ['']
+
 
 def create_s3_bucket_redirects(routing_rules: list) -> list[tuple]:
     s3_bucket_redirects_list = []
@@ -100,15 +99,14 @@ def isValidProject(project: str) -> bool:
 #2. Redirect is for a branch that is already downloadable
 ## Accepts a list of redirects as an argument
 ## Returns list of potential consolidation paths, invalid branches, and the list of consolidated redirects
-def consolidate(redirects: list[tuple]) :
+def consolidate(redirects: list[tuple], online_branches: list) :
     potential_bucket_keys = {}
     invalid_branch_list = []
     consolidated_redirects = set()
     for redirect in redirects:
         origin, destination = normalize(redirect[0], redirect[1])
         origin_branch =origin.split("/")[3] 
-        if not origin_branch in active_branches:
-                print(origin_branch)
+        if len(online_branches) > 0 and not origin_branch in online_branches:
                 invalid_branch_list.append(redirect)
         else:       
             for i in range(1, (min(len(origin.split("/")), len(destination.split("/"))))):
@@ -123,7 +121,7 @@ def consolidate(redirects: list[tuple]) :
 
     consolidated_redirects =  set(redirects) - set(invalid_branch_list)
     print(f"length of consolidated redirects {len(consolidated_redirects)}")
-    print(f"length of manual captured redirects {len(invalid_branch_list)}")
+    print(f"length of captured redirects {len(invalid_branch_list)}")
 
 # change this to have a list of the redirects we're taking out
     bucket_keys = {
