@@ -1,10 +1,10 @@
-redirect_label = "[[redirect]]"
+redirect_label = "[[redirects]]"
 from_label = "from = "
 to_label = "to = "
 asterisk = "/*"
 splat = "/:splat"
 
-ok_statius_code = "status = 200"
+ok_status_code = "status = 200"
 temporary_status_code = "status = 302"
 
 intermediary_label = 'intermediary/'
@@ -12,13 +12,17 @@ intermediary_label = 'intermediary/'
 
 
 # returns array of minor versions between start and end numbers, inclusive
+1.1 - 1.11
 def create_numerical_versions_list(start: float, end:float):
-    i = int(start*10)
-    end = int(end * 10)
+    # get whatever is before decimal place in 'end'
+    #get whatever is after decimal place in end
+    #compare value in front and behind decimal place on each loop
+    i = int(start*100)
+    end = int(end * 100)
     print(i, end)
     versions_to_eol = []
     while i<=end:
-        versions_to_eol.append(f"v{i // 10}.{i % 10:01d}")
+        versions_to_eol.append(f"v{i // 100}.{i % 100:02d}")
         i= i + 1
     return versions_to_eol
 
@@ -62,8 +66,29 @@ def create_intermediary_version_redirect_list(online_versions, prefix):
     return "\n \n".join(intermediary_redirects)
 
 
-def create_circular_redirect():
-    return
+def create_circular_redirect(prefix, version):
+    origin = f'{from_label}"{prefix}{version}{asterisk}"'
+    destination = f'{to_label}"{prefix}{version}{splat}"'
+    circular_redirect = "\n".join([redirect_label, origin, destination, ok_status_code])
+    return circular_redirect
+
+def create_insert_slug_redirect(prefix, primary_version):
+    origin = f'{from_label}"{prefix}{asterisk[1]}"'
+    destination = f'{to_label}"{prefix}{primary_version}{splat}"'
+    insert_slug_redirect = "\n".join([redirect_label, origin, destination])
+    return insert_slug_redirect
+
+    
+def create_circular_redirect_list(prefix, online_versions, primary_version = 'current'):
+    circular_redirects = []
+
+    for version in online_versions:
+        # pass in version again as 3rd param to have redirects redirect back to self
+        circular_redirects.append(create_circular_redirect(prefix, version))
+
+    primary_redirect = create_insert_slug_redirect(prefix, primary_version)
+    circular_redirects.append(primary_redirect)
+    return "\n \n".join(circular_redirects)
 
 def create_alias_redirect(prefix, key, alias_list):
     alias_redirects = []
@@ -82,25 +107,41 @@ def create_alias_redirect_list(prefix, alias_dict):
 
 
 
+
 def main():
     ## Must use leading and trailing slash
-    prefix = "/docs/kafka-connector/"
+    prefix = "/docs/mongocli/"
+    #TODO: assert slashes
 
     # returns array of minor versions between start and end numbers, inclusive
-    versions_to_eol =  create_numerical_versions_list(1.0, 1.9)
+    versions_to_eol =  create_numerical_versions_list(1.0, 1.11)+('current')
     desired_eol_dest = "current"
     ascending = True
     #TODO: account for edge cases
     eol_redirects_list = create_eol_redirect_list(versions_to_eol, prefix, desired_eol_dest, ascending)
-    
+    print("\n\n### EOL REDIRECTS")
+    print(eol_redirects_list)
     # dictionary of aliases keyed by slug
     # value is list of aliases for that slug
     alias_dict = {'v1.15': ['current'], 'upcoming': ['master']}
+    print("\n\n### ALIAS REDIRECTS")
     all_alias_redirects = create_alias_redirect_list(prefix, alias_dict)
     print(all_alias_redirects)
-    online_versions = ['v1.12', 'v1.13', 'v1.14', 'current', 'upcoming']
+    # 
+    # 
+    # eol_redirects_list = create_eol_redirect_list(versions_to_eol, prefix, desired_eol_dest, ascending)
+
+    online_versions = create_numerical_versions_list(1.20, 1.31) + ['current', 'upcoming']
+    
     intermediary_redirects = create_intermediary_version_redirect_list(online_versions, prefix)
-    # print(intermediary_redirects)
+    print(f"\n\n#Online versions: {online_versions}")
+    print(f"\n### CATCH ALLS ( Redirects any {prefix} page that would've 404ed to the version's landing page)")
+    print(intermediary_redirects)
+
+    ## Created so that if someone tries to visit a versioned product without a slug, they'll be redirected appropriately
+    print("\n\n### CATCH ALLS (add slug to paths without slug)")
+    print(create_circular_redirect_list(prefix, online_versions))
+    
 
     
 

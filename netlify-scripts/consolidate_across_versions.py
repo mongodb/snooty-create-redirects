@@ -1,5 +1,6 @@
+import re
 import pandas as pd
-from utils import get_associated_manual_version_redirects, get_branch, add_placeholder
+from utils import get_branch, add_placeholder
 from generate_netlify_redirects import write_to_csv
 
 
@@ -13,62 +14,92 @@ def is_equivalent_redirect(redirect_one: tuple, redirect_two: tuple):
 
 
 
-def find_wildcards (list: str, main_versions: list):
+def find_wildcards (redirect_list: str, main_versions: list):
     partial_wildcards = {}
-    wildcards=[]
+    wildcards = []
+
     i = 0
-    print(len(list))
-    while i < len(list):
-        if get_branch(list[i][0]) in main_versions:
-            original_redirect = list[i]
-            num_redundancies = 0
-            base_redirect_origin, base_redirect_destination = add_placeholder(list[i], 3, ":version")
-            j = 0
-            matches = []
-            while j < len(list):
-                ## Find all redirects that match version-agnostic redirect
-                comparative_redirect = list[j]
-                in_main_versions: bool = get_branch(comparative_redirect[0]) in main_versions
-                equivalent_redirects: bool = is_equivalent_redirect((base_redirect_origin, base_redirect_destination),(comparative_redirect) )
-                if in_main_versions and equivalent_redirects:
-                    num_redundancies +=1
-                    matches.append(comparative_redirect)
-                    del list[j]
-                else: j+=1
-            # print(matches)
-            if num_redundancies == len(main_versions):
-                print('adding to wildcards')
-                wildcards.append((base_redirect_origin, base_redirect_destination))
-            elif num_redundancies > 1: 
-                print(f"no wildcard created for {(base_redirect_origin, base_redirect_destination)}")
-                partial_wildcards[(base_redirect_origin, base_redirect_destination)] = num_redundancies
-            else: print("didn't find redundancies for ", original_redirect)
-        i+=1
+    while i < len(redirect_list):
+        origin_branch = get_branch(redirect_list[i][0])
+        if origin_branch not in main_versions:
+            i += 1
+            continue
+
+        original_redirect = redirect_list[i]
+        base_origin, base_dest = add_placeholder(original_redirect, 3, ":version")
+
+        matches = []
+        new_list = []
+        for redirect in redirect_list:
+            in_main = get_branch(redirect[0]) in main_versions
+            if in_main and is_equivalent_redirect((base_origin, base_dest), redirect):
+                matches.append(redirect)
+            else:
+                new_list.append(redirect)
+
+        if len(matches) == len(main_versions):
+            wildcards.append((base_origin, base_dest))
+        elif len(matches) > 1:
+            partial_wildcards[(base_origin, base_dest)] = len(matches)
+
+        # Replace with the unmatched redirects only
+        redirect_list = new_list
+        # Reset index to 0 since the list has changed
+        i = 0
+
     return wildcards
 
 
-def remove_wildcard_caught_redirects(original_redirects_list: list, wildcards: set):
-    redirects = [(add_placeholder(redirect, 3, ":version")) for redirect in original_redirects_list]
+def remove_wildcard_caught_redirects(original_redirects_list: list, wildcards: set, main_versions: list):
     remaining_redirects = []
-    for redirect in wildcards:
-        if not redirect in wildcards:
+    for redirect in original_redirects_list:
+        placehold_redirect = add_placeholder(redirect, 3, ":version")
+        # destination = add_placeholder(redirect[1], 3, ":version")
+        branch = get_branch(redirect[0])
+        # todo: OR non-numerical branch
+        # print("Branch in get_branch:", get_branch(redirect[0]), "Origin:", redirect[0])
+        if not placehold_redirect in wildcards and (branch in main_versions or not re.fullmatch(r'v\d+\.\d+', branch)):
            remaining_redirects.append(redirect)     
     return remaining_redirects
 
 
-def main():
-    main_versions = ['v1.15', 'v1.14', 'v1.13', 'v1.12']
+# takes a dictionary of versions and their aliases, replaces any aliases with the key
+def clean_aliases(prefix, alias_dict, redirect_list):
+    cleaned_redirect_list = []
+    num_prefix_sections = len(prefix.split("/"))
+    for origin, destination in redirect_list:
+        origin_version = origin.split("/")[num_prefix_sections-1]
+        destination_version = destination.split("/")[num_prefix_sections-1]
+        for key, alias_list in alias_dict.items():
+            if origin_version in alias_list:
+                origin = origin.replace(origin_version, key)
+            if destination_version in alias_list:
+                destination = destination.replace(destination_version, key)
+        if origin!= destination:
+            cleaned_redirect_list.append((origin, destination))
+    return cleaned_redirect_list
 
-    file_name = 'netlify-kafka-connector-redirects'
+def main():
+    main_versions = ['current', 'v1.25', 'v1.26', 'v1.27', 'v1.28', 'v1.29', 'v1.30', 'v1.31', 'v1.32']
+
+    file_name = 'netlify-kubernetes-operator-redirects'
     source_file_path = f'../netlify-redirects/{file_name}.csv'
     redirects_arr = pd.read_csv(source_file_path)
     redirects = list([*map(tuple,redirects_arr.values)])
-    wildcards = find_wildcards(redirects, main_versions)
+    print(len(redirects))
+     ## Must use leading and trailing slash
+    prefix = "/docs/kubernetes-operator/"
+    alias_dict = {'current': ['stable', 'v1.33'], 'upcoming': ['master', 'v1.34']}
+    new_redirect_list = clean_aliases(prefix, alias_dict, redirects)
+    # print(new_redirect_list)
+    wildcards = find_wildcards(new_redirect_list, main_versions)
     print(len(wildcards))
     print ("\n")
- 
+    
     #remove the ones associated with the wildcards
-    print(remove_wildcard_caught_redirects(redirects, set(wildcards)))
+    remaining_redirects= remove_wildcard_caught_redirects(new_redirect_list, set(wildcards), main_versions)
+    print('\n\n', len(remaining_redirects))
+    write_to_csv(remaining_redirects, f"{file_name}-page-levels" )
     write_to_csv(wildcards, f"{file_name}-wildcards")
  
 

@@ -15,7 +15,9 @@ def convert_csv_to_toml(source_file_path: str, destination_file_path: str, versi
             origin = "/" + origin
         if not origin.endswith("/"):
             origin =  origin + "/"
-        output_rules.append(
+
+        if origin != destination:
+            output_rules.append(
             '\n[[redirects]] \rfrom = "'
             + origin
             + '"\rto = "'
@@ -26,11 +28,11 @@ def convert_csv_to_toml(source_file_path: str, destination_file_path: str, versi
 
     DESTINATION_FILE = f"{destination_file_path}"
     with open(DESTINATION_FILE, "w") as f:
-        output_rules.insert(0, f'#{len(redirects)} redirects found specific to version {version}')
+        output_rules.insert(0, f'#{len(redirects)} redirects found')
         f.write("".join(output_rules))
 
 def main():
-    file_name = 'netlify-kafka-connector-redirects-wildcards'
+    file_name = 'netlify-kubernetes-operator-redirects-wildcards'
 
     source_file_path = f'../netlify-redirects/{file_name}.csv'
     if not os.path.isfile(source_file_path):

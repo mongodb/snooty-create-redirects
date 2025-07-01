@@ -27,6 +27,7 @@ def write_to_csv(redirects: list[tuple], output_file_name: str) -> list[str]:
     for redirect in redirects:
         origin, destination = normalize(redirect[0], redirect[1])
         csv_output_rules.append((origin, destination))
+    csv_output_rules.sort()
     df = pd.DataFrame(csv_output_rules, columns = ['origin', 'destination'])
     df.to_csv(DESTINATION_FILE_CSV, index= False)
 
@@ -60,14 +61,14 @@ def main():
     KEY_REFRESH = True
     bucket = "docs-mongodb-org-dotcomprd"
     # Subdir must be a project(ex: "docs/bi-connector") or a valid docs version
-    subdir = "docs/cloud-manager"
-    output_file_name = "netlify-cloud-manager-2"
+    subdir = "docs/ops-manager"
+    output_file_name = "netlify-ops-manager"
     # 168197
     # last_index = 168197
     last_index = 500000
     first_index = 0
     # leave empty if unversioned
-    online_branches = []
+    online_branches = ['v7.0', 'v8.0', 'master', 'current']
     s3_connection = boto3.session.Session().client("s3")
 
 

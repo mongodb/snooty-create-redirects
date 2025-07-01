@@ -4,7 +4,7 @@ import json
 import pandas as pd
 
 rapid_versions = {'v5.1', 'v5.2', 'v5.3', 'v6.1', 'v6.2', 'v6.3', 'v7.1', 'v7.2', 'v7.3'}
-version = "v8.1"
+
 
 
 ## Assumes that each path has a leading slash, otherwise index from 2
@@ -39,9 +39,10 @@ def separate_page_levels(redirects: list, version: str):
 
 
 #  takes a redirect pair in the form of a list of two strings
-def replace_version(redirect: list[str]):
+def replace_version(redirect: list[str], version = "v8.1"):
     return (redirect[0].replace(":version", version).strip(), redirect[1].replace(":version", version).strip())
     
+
 
 def get_associated_manual_version_redirects(version: str):
     consolidated_redirect_csv = f"../netlify-redirects/netlify-docs-{version}-2-consolidated.csv"
@@ -102,12 +103,12 @@ def test_redirect(origin: str, destination: str) -> bool:
         print(f"FAIL: {origin}, status code {resp.status_code}")
         resp.close()
         return False
-    elif resp.headers["Location"] != destination:
-        print(f"FAIL: {origin} -> {origin}, found {resp.headers['Location']}")
+    elif resp.headers["Location"] != destination and resp.headers["Location"] != f"{destination}index.html":
+        print(f"FAIL: {origin} -> {destination}, found {resp.headers['Location']}")
         resp.close()
         return False
     else:
-        # print(f"SUCCESS: {origin} -> {origin}, found {resp.headers['Location']}")
+        # print(f"SUCCESS: {origin} -> {destination}, found {resp.headers['Location']}")
         resp.close()
         return True
     

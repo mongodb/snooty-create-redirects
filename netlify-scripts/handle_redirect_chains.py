@@ -1,6 +1,6 @@
 import pandas as pd
-from utils import add_path_placeholder
-from natsort import natsorted
+from utils import add_path_placeholder, get_branch
+# from natsort import natsorted
 from generate_netlify_redirects import write_to_csv
 
 def find_double_hops(redirects_list: list)-> set:
@@ -59,7 +59,7 @@ def find_and_eliminate_redirect_chains(redirects_list: list[tuple]) -> list[tupl
         del redirects_dict[origin] 
     
     print("new redirects len", len(set(new_redirects)))
-    print("redundant redirects", circular_redirects)
+    # print("redundant redirects", circular_redirects)
     return new_redirects, circular_redirects
 
 
@@ -72,15 +72,24 @@ def replace_path_section(redirect: tuple):
     return base_redirect_origin, base_redirect_destination
 
 def main(): 
-    file_name = 'netlify-mongocli-wildcards-cleaned (3)'
+    file_name = 'netlify-atlas-redirects'
     source_file_path = f'../netlify-redirects/{file_name}.csv'
     redirects_arr = pd.read_csv(source_file_path)
     redirects = list([*map(tuple,redirects_arr.values)])
-
-    new_redirects, redirect_chains = find_and_eliminate_redirect_chains(redirects)
-    redirects_sorted = natsorted(new_redirects, key=lambda x: x[0].casefold())
-    print(set(redirects)-set(redirects_sorted))
-    write_to_csv(redirects_sorted, f"{file_name}-cleaned")
+    print("first", len(redirects))
+    other_repos = ['app-services', 'atlas-operator', 'cli', 'device-sdks', 'government', 'architecture']
+    new_redirects = []
+    other_redirects = []
+    for redirect in redirects:
+        if not get_branch(redirect[0]) in other_repos: 
+            new_redirects.append(redirect)
+        else: other_redirects.append(redirect)
+    print(len(new_redirects))
+    new_redirects, redirect_chains = find_and_eliminate_redirect_chains(new_redirects)
+    print(len(redirect_chains))
+    redirects_sorted = sorted(new_redirects, key=lambda x: x[0].casefold())
+    print(len(set(redirects)-set(redirects_sorted)))
+    write_to_csv(new_redirects, f"{file_name}-cleaned")
     
 
 

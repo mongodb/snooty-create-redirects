@@ -12,6 +12,7 @@ DESTINATION_FILE_CSV = f"manual-5.0-redirect-pageviews.csv"
 def get_count(key):
     return key[2]
 
+
 def main() -> None:
     redirects: list[list[str]] = pd.read_csv(REDIRECT_FILE).values
     pageviews = pd.read_csv(PAGEVIEWS_FILE)

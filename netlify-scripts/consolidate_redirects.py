@@ -121,7 +121,7 @@ def consolidate(redirects: list[tuple], online_branches: list) :
 
     consolidated_redirects =  set(redirects) - set(invalid_branch_list)
     print(f"length of consolidated redirects {len(consolidated_redirects)}")
-    print(f"length of captured redirects {len(invalid_branch_list)}")
+    print(f"length of manual captured redirects {len(invalid_branch_list)}")
 
 # change this to have a list of the redirects we're taking out
     bucket_keys = {
