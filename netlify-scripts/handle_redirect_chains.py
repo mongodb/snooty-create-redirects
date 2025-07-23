@@ -72,24 +72,30 @@ def replace_path_section(redirect: tuple):
     return base_redirect_origin, base_redirect_destination
 
 def main(): 
-    file_name = 'netlify-atlas-redirects'
+    file_name = 'netlify-php-library-redirects'
     source_file_path = f'../netlify-redirects/{file_name}.csv'
     redirects_arr = pd.read_csv(source_file_path)
     redirects = list([*map(tuple,redirects_arr.values)])
     print("first", len(redirects))
-    other_repos = ['app-services', 'atlas-operator', 'cli', 'device-sdks', 'government', 'architecture']
-    new_redirects = []
-    other_redirects = []
-    for redirect in redirects:
-        if not get_branch(redirect[0]) in other_repos: 
-            new_redirects.append(redirect)
-        else: other_redirects.append(redirect)
-    print(len(new_redirects))
-    new_redirects, redirect_chains = find_and_eliminate_redirect_chains(new_redirects)
-    print(len(redirect_chains))
+    # other_repos = ['app-services', 'atlas-operator', 'cli', 'device-sdks', 'government', 'architecture']
+    # new_redirects = []
+    # other_redirects = []
+    # for redirect in redirects:
+    #     if not get_branch(redirect[0]) in other_repos: 
+    #         new_redirects.append(redirect)
+    #     else: other_redirects.append(redirect)
+    # print(len(new_redirects))
+    new_redirects, redirect_chains = find_and_eliminate_redirect_chains(redirects)
+    different_redirects = set(new_redirects)-set(redirects)
+    print("Difference between new and old redirect set", different_redirects)
+
+    print("redirect chains", redirect_chains)
+    if len(redirect_chains)== 0:
+        print("No redirect chains found, returning")
+        return
     redirects_sorted = sorted(new_redirects, key=lambda x: x[0].casefold())
-    print(len(set(redirects)-set(redirects_sorted)))
-    write_to_csv(new_redirects, f"{file_name}-cleaned")
+    #  Get the redirects that have been updated/ are new
+    write_to_csv(redirects_sorted, f"{file_name}-cleaned")
     
 
 

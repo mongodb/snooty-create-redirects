@@ -1,61 +1,75 @@
 import re
 import pandas as pd
-from utils import get_branch, add_placeholder
+from utils import add_path_placeholder, create_alias_dict, ensure_slashes, get_branch, add_placeholder, parse_raw_versions
 from generate_netlify_redirects import write_to_csv
+
+def normalize_path(path, skip_sections):
+    return [part for part in path.strip("/").split("/")[skip_sections:] if part]
 
 
 ##Assumes that each path has a leading slash, otherwise index from 3
-def is_equivalent_redirect(redirect_one: tuple, redirect_two: tuple):
-    redirect_one_origin = redirect_one[0].split("/")[4:]
-    redirect_one_destination = redirect_one[1].split("/")[4:]
-    redirect_two_origin = redirect_two[0].split("/")[4:]
-    redirect_two_destination = redirect_two[1].split("/")[4:]
-    return redirect_one_origin == redirect_two_origin 
+def is_equivalent_redirect(redirect_one: tuple, redirect_two: tuple, num_prefix_sections = 5):
+    index = num_prefix_sections
+
+    r1_origin = normalize_path(redirect_one[0], index)
+    r1_dest = normalize_path(redirect_one[1], index)
+    r2_origin = normalize_path(redirect_two[0], index)
+    r2_dest = normalize_path(redirect_two[1], index)
+
+    return r1_origin == r2_origin and r1_dest == r2_dest
 
 
 
-def find_wildcards (redirect_list: str, main_versions: list):
+def find_wildcards (redirect_list: str, main_versions: list, prefix: str, num_prefix_sections: int):
     partial_wildcards = {}
     wildcards = []
 
     i = 0
     while i < len(redirect_list):
-        origin_branch = get_branch(redirect_list[i][0])
+        origin_branch = get_branch(redirect_list[i][0], num_prefix_sections)
         if origin_branch not in main_versions:
             i += 1
             continue
-
         original_redirect = redirect_list[i]
-        base_origin, base_dest = add_placeholder(original_redirect, 3, ":version")
-
+        base_origin = add_path_placeholder(original_redirect[0], num_prefix_sections, ":version")
+        base_dest = add_path_placeholder(original_redirect[1], num_prefix_sections, ":version") if original_redirect[1].startswith(prefix) else original_redirect[1]
+    
+        # print(base_origin, base_dest)
         matches = []
         new_list = []
         for redirect in redirect_list:
-            in_main = get_branch(redirect[0]) in main_versions
-            if in_main and is_equivalent_redirect((base_origin, base_dest), redirect):
+            in_main = get_branch(redirect[0], num_prefix_sections) in main_versions
+            if not in_main:
+                print(get_branch(redirect[0], num_prefix_sections), "NOT IN MAIN")
+            if in_main and is_equivalent_redirect((base_origin, base_dest), redirect, num_prefix_sections):
                 matches.append(redirect)
             else:
                 new_list.append(redirect)
 
         if len(matches) == len(main_versions):
             wildcards.append((base_origin, base_dest))
+            # Replace with the unmatched redirects only
+            redirect_list = new_list
+            # Reset index to 0 since the list has changed
+            i = 0
         elif len(matches) > 1:
             partial_wildcards[(base_origin, base_dest)] = len(matches)
-
-        # Replace with the unmatched redirects only
-        redirect_list = new_list
-        # Reset index to 0 since the list has changed
-        i = 0
+            print(matches, len(matches))
+            # Replace with the unmatched redirects only
+            redirect_list = new_list
+            # Reset index to 0 since the list has changed
+            i = 0
+        else: i+=1
 
     return wildcards
 
 
-def remove_wildcard_caught_redirects(original_redirects_list: list, wildcards: set, main_versions: list):
+def remove_wildcard_caught_redirects(original_redirects_list: list, wildcards: set, main_versions: list, prefix: str, num_prefix_sections: int):
     remaining_redirects = []
     for redirect in original_redirects_list:
-        placehold_redirect = add_placeholder(redirect, 3, ":version")
-        # destination = add_placeholder(redirect[1], 3, ":version")
-        branch = get_branch(redirect[0])
+        placehold_redirect = (add_path_placeholder(redirect[0], num_prefix_sections, ":version"), add_path_placeholder(redirect[1], num_prefix_sections, ":version") if redirect[1].startswith(prefix) else redirect[1])
+        # placehold_redirect = add_placeholder(redirect, num_prefix_sections, ":version")
+        branch = get_branch(redirect[0], num_prefix_sections)
         # todo: OR non-numerical branch
         # print("Branch in get_branch:", get_branch(redirect[0]), "Origin:", redirect[0])
         if not placehold_redirect in wildcards and (branch in main_versions or not re.fullmatch(r'v\d+\.\d+', branch)):
@@ -64,12 +78,11 @@ def remove_wildcard_caught_redirects(original_redirects_list: list, wildcards: s
 
 
 # takes a dictionary of versions and their aliases, replaces any aliases with the key
-def clean_aliases(prefix, alias_dict, redirect_list):
+def clean_aliases(alias_dict, redirect_list, num_prefix_sections):
     cleaned_redirect_list = []
-    num_prefix_sections = len(prefix.split("/"))
     for origin, destination in redirect_list:
-        origin_version = origin.split("/")[num_prefix_sections-1]
-        destination_version = destination.split("/")[num_prefix_sections-1]
+        origin_version = origin.split("/")[num_prefix_sections]
+        destination_version = destination.split("/")[num_prefix_sections]
         for key, alias_list in alias_dict.items():
             if origin_version in alias_list:
                 origin = origin.replace(origin_version, key)
@@ -77,28 +90,46 @@ def clean_aliases(prefix, alias_dict, redirect_list):
                 destination = destination.replace(destination_version, key)
         if origin!= destination:
             cleaned_redirect_list.append((origin, destination))
-    return cleaned_redirect_list
+    return list(set(cleaned_redirect_list))
 
 def main():
-    main_versions = ['current', 'v1.25', 'v1.26', 'v1.27', 'v1.28', 'v1.29', 'v1.30', 'v1.31', 'v1.32']
+    ## Must use leading and trailing slash
+    prefix = ensure_slashes("/docs/mongoid/")
+    raw_versions = """
+    upcoming
+    current
+    """
 
-    file_name = 'netlify-kubernetes-operator-redirects'
+    # main_versions = parse_raw_versions(raw_versions)
+    # print(main_versions)
+    main_versions = ["upcoming", "current"]
+    raw_aliases =  """
+    master    upcoming
+    v9.0     current
+    """
+
+    alias_dict = create_alias_dict(raw_aliases)
+    print(alias_dict)
+    # alias_dict = {'current': ['v3.4'], 'upcoming': ['master']}
+
+
+    file_name = 'netlify-mongoid-redirects'
     source_file_path = f'../netlify-redirects/{file_name}.csv'
     redirects_arr = pd.read_csv(source_file_path)
     redirects = list([*map(tuple,redirects_arr.values)])
     print(len(redirects))
-     ## Must use leading and trailing slash
-    prefix = "/docs/kubernetes-operator/"
-    alias_dict = {'current': ['stable', 'v1.33'], 'upcoming': ['master', 'v1.34']}
-    new_redirect_list = clean_aliases(prefix, alias_dict, redirects)
-    # print(new_redirect_list)
-    wildcards = find_wildcards(new_redirect_list, main_versions)
-    print(len(wildcards))
-    print ("\n")
+ 
+
+    num_prefix_sections = len(prefix.split("/"))-1 
+    print("num prefix sections:", num_prefix_sections)
+    new_redirect_list = clean_aliases( alias_dict, redirects, num_prefix_sections)
+    print(len(set(new_redirect_list)))
     
+    wildcards = find_wildcards(new_redirect_list, main_versions, prefix, num_prefix_sections)
+    print(len(wildcards))
     #remove the ones associated with the wildcards
-    remaining_redirects= remove_wildcard_caught_redirects(new_redirect_list, set(wildcards), main_versions)
-    print('\n\n', len(remaining_redirects))
+    remaining_redirects= remove_wildcard_caught_redirects(new_redirect_list, set(wildcards), main_versions, prefix, num_prefix_sections)
+    print('\n\n', "remaining redirects that will be page levels:", len(remaining_redirects))
     write_to_csv(remaining_redirects, f"{file_name}-page-levels" )
     write_to_csv(wildcards, f"{file_name}-wildcards")
  

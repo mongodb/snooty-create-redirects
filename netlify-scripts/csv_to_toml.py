@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+from utils import ensure_slashes, ensure_starts_with_slash, ensure_ends_with_slash
 
 def convert_csv_to_toml(source_file_path: str, destination_file_path: str, version: str):
     redirects_arr = pd.read_csv(source_file_path)
@@ -8,13 +9,10 @@ def convert_csv_to_toml(source_file_path: str, destination_file_path: str, versi
     output_rules = []
     for origin, destination in redirects:
         if not destination.startswith("/") and not destination.startswith("https"):
-            destination = "/" + destination
+            destination = ensure_starts_with_slash(destination)
         if not destination.endswith("/"):
-            destination =  destination + "/"
-        if not origin.startswith("/"):
-            origin = "/" + origin
-        if not origin.endswith("/"):
-            origin =  origin + "/"
+            destination =  ensure_ends_with_slash
+        origin = ensure_slashes(origin)
 
         if origin != destination:
             output_rules.append(
@@ -32,8 +30,7 @@ def convert_csv_to_toml(source_file_path: str, destination_file_path: str, versi
         f.write("".join(output_rules))
 
 def main():
-    file_name = 'netlify-kubernetes-operator-redirects-wildcards'
-
+    file_name = 'netlify-php-library-redirects-page-levels-cleaned'
     source_file_path = f'../netlify-redirects/{file_name}.csv'
     if not os.path.isfile(source_file_path):
         print(f"Source file does not exist at path {source_file_path}")

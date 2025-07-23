@@ -28,7 +28,7 @@ def write_bucket_objects_list(bucket: str, object_keys_file: str) -> list:
 
 
 def get_bucket_objects_list(
-    bucket: str, subdir: str, first_index: int, last_index: int, refresh: bool
+    bucket: str, subdir: str, first_index: int, last_index: int, refresh: bool, online_branches: list
 ) -> list:
     object_keys_file = f"resources/scraped-redirects/{bucket}-keys.json"
     f = open(object_keys_file, "w+")
@@ -43,7 +43,21 @@ def get_bucket_objects_list(
         objects_list = write_bucket_objects_list(bucket, object_keys_file)
         from_string = "s3"
 
-    if subdir:
+    if subdir and len(online_branches) > 0:
+        print("finding all branch + subdir combos")
+        subdirs = []
+        for branch in online_branches:
+            subdirs.append("/".join([subdir, branch, ""]))
+        print(subdirs)
+        specific_keys = []
+        for key in objects_list:
+            for branch_subdir in subdirs:
+                if key.startswith(branch_subdir):
+                    specific_keys.append(key)
+                    continue
+        objects_list = specific_keys
+    
+    elif subdir:
         specific_keys = []
         for key in objects_list:
             if key.startswith(subdir):
@@ -81,7 +95,7 @@ def writeRedirectsToFile(
 def find_redirects(bucket: str, keys: list, s3_connection: boto3.client) -> list[tuple]:
     redirects = []
 
-    print(f"Beginning to iterate over objects keys to find all redirect objects")
+    print(f"Beginning to iterate over {len(keys)} objects keys to find all redirect objects")
     for key in keys:
         if key.find("html") != -1:
             try:

@@ -61,20 +61,20 @@ def main():
     KEY_REFRESH = True
     bucket = "docs-mongodb-org-dotcomprd"
     # Subdir must be a project(ex: "docs/bi-connector") or a valid docs version
-    subdir = "docs/ops-manager"
-    output_file_name = "netlify-ops-manager"
+    subdir = "docs/mongoid"
+    output_file_name = "netlify-mongoid"
     # 168197
     # last_index = 168197
     last_index = 500000
     first_index = 0
     # leave empty if unversioned
-    online_branches = ['v7.0', 'v8.0', 'master', 'current']
+    online_branches = ["upcoming", "master", "current", "v9.0"]
     s3_connection = boto3.session.Session().client("s3")
 
 
     ## Gets list of objects in the bucket (aka keys)
     keys: list[str] = get_bucket_objects_list(
-        bucket, subdir, first_index, last_index, KEY_REFRESH
+        bucket, subdir, first_index, last_index, KEY_REFRESH, online_branches
     )
 
     ## Get all redirects that exist on a given list of keys
@@ -119,13 +119,14 @@ def main():
     # executable_redirects, unexecutable_redirects = find_unexecutable_redirects(
     #     sorted_page_redirects[subdir], s3_bucket_redirects_list
     # )
+
     executable_redirects, unexecutable_redirects = find_unexecutable_redirects(
         redirects, s3_bucket_redirects_list
     )
     print(f"{len(unexecutable_redirects)} unexecutable redirects found")
-    bucket_keys, manual_wildcard_redirects, consolidated_redirects = consolidate(executable_redirects, online_branches)
+    bucket_keys, manual_wildcard_redirects, consolidated_redirects = consolidate(executable_redirects)
 
-    successes, failures = test_all_redirects(executable_redirects)
+    # successes, failures = test_all_redirects(executable_redirects)
     convert(executable_redirects, output_file_name)
 
     # write_to_csv(consolidated_redirects, output_file_name+"-consolidated")

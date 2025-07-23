@@ -1,9 +1,6 @@
 import requests
-import os
 import json
 import pandas as pd
-
-rapid_versions = {'v5.1', 'v5.2', 'v5.3', 'v6.1', 'v6.2', 'v6.3', 'v7.1', 'v7.2', 'v7.3'}
 
 
 
@@ -16,7 +13,7 @@ def get_branch(redirect: str, index = 3):
     return branch
 
 
-def add_path_placeholder(path: str, branch_index: int, replacement: str):
+def add_path_placeholder(path: str, branch_index: int, replacement = ":version"):
     branch = get_branch(path, branch_index)
     new_path = path.replace(branch, replacement)
     return new_path
@@ -25,58 +22,42 @@ def add_path_placeholder(path: str, branch_index: int, replacement: str):
 def add_placeholder(redirect: tuple, branch_index: int, replacement: str):
     return add_path_placeholder(redirect[0], branch_index, replacement), add_path_placeholder(redirect[1], branch_index, replacement)
 
-def separate_page_levels(redirects: list, version: str):
-    version_page_levels = []
-    to_specific_manual_page = []
-    prefix = f"/docs/{version}"
-    for redirect in redirects:
-        if redirect[1].startswith(prefix):
-            version_page_levels.append(redirect)
-        else:
-            to_specific_manual_page.append(redirect)
-    return version_page_levels, to_specific_manual_page
+# def separate_page_levels(redirects: list, version: str):
+#     version_page_levels = []
+#     to_specific_manual_page = []
+#     prefix = f"/docs/{version}"
+#     for redirect in redirects:
+#         if redirect[1].startswith(prefix):
+#             version_page_levels.append(redirect)
+#         else:
+#             to_specific_manual_page.append(redirect)
+#     return version_page_levels, to_specific_manual_page
     
 
 
 #  takes a redirect pair in the form of a list of two strings
-def replace_version(redirect: list[str], version = "v8.1"):
-    return (redirect[0].replace(":version", version).strip(), redirect[1].replace(":version", version).strip())
+def replace_version_placeholder(redirect: list[str], replacement = "v8.1"):
+    return (redirect[0].replace(":version", replacement).strip(), redirect[1].replace(":version", replacement).strip())
     
 
 
-def get_associated_manual_version_redirects(version: str):
-    consolidated_redirect_csv = f"../netlify-redirects/netlify-docs-{version}-2-consolidated.csv"
-    consolidated_redirect_2_csv = f"../netlify-redirects/netlify-docs-{version}-consolidated.csv"
-    redirect_csv = f"../netlify-redirects/netlify-docs-{version}.csv"
-    if os.path.exists(consolidated_redirect_2_csv) and os.path.getsize(consolidated_redirect_2_csv) != 0:
-        redirects = pd.read_csv(consolidated_redirect_2_csv)
-
-    elif os.path.exists(consolidated_redirect_csv) and os.path.getsize(consolidated_redirect_csv) != 0:
-        redirects = pd.read_csv(consolidated_redirect_csv)
-        
-    elif os.path.exists(redirect_csv) and os.path.getsize(redirect_csv) != 0:
-        redirects = pd.read_csv(redirect_csv)
-
-    return (set([*map(tuple,redirects.values)]))
-
-
-def remove_wildcard_captures(wildcard_list: list[list[str]], redirects_list: list[tuple])-> list[str]:
-    wildcards= ((list([*map(replace_version,wildcard_list)])))
+# def remove_wildcard_captures(wildcard_list: list[list[str]], redirects_list: list[tuple])-> list[str]:
+#     wildcards= ((list([*map(replace_version,wildcard_list)])))
     
-    for origin, destination in set(wildcards):
-        found = False
-        # if the origin is found in one of the consolidated redirects, pop that redirect from consolidated redirects
-        for version_origin, version_dest in redirects_list.copy(): 
-           normalized_origin, normalized_destination = normalize(version_origin, version_dest)
-           if normalized_origin == origin and destination == normalized_destination:
-              redirects_list.remove((version_origin, version_dest))
-              found = True
-              continue
-        if not found:
-            print("wildcard not found in version")
-            print (origin, destination)
+#     for origin, destination in set(wildcards):
+#         found = False
+#         # if the origin is found in one of the consolidated redirects, pop that redirect from consolidated redirects
+#         for version_origin, version_dest in redirects_list.copy(): 
+#            normalized_origin, normalized_destination = normalize(version_origin, version_dest)
+#            if normalized_origin == origin and destination == normalized_destination:
+#               redirects_list.remove((version_origin, version_dest))
+#               found = True
+#               continue
+#         if not found:
+#             print("wildcard not found in version")
+#             print (origin, destination)
            
-    return redirects_list
+#     return redirects_list
 
 def get_file_diff(file_name_one, file_name_two):
     redirects_arr_full = pd.read_csv(file_name_one)
@@ -96,6 +77,7 @@ def get_file_diff(file_name_one, file_name_two):
 
     print(len(redirects_one), len(redirects_two))
     return redirects_one-redirects_two
+
 
 def test_redirect(origin: str, destination: str) -> bool:
     resp = requests.head(origin)
@@ -132,13 +114,8 @@ def normalize(origin: str, destination: str) -> tuple[str, str]:
     for substring in removal_candidates:
         origin = origin.replace(substring, "")
         destination = destination.replace(substring, "")
-
-    # TODO: double check the format expected by netlify
-    if not destination.startswith("/"):
-        destination = "/" + destination
-
-    if not origin.startswith("/"):
-        origin = "/" + origin
+    origin = ensure_slashes(origin)
+    destination = ensure_slashes(destination)
 
     return origin, destination
 
@@ -173,28 +150,80 @@ def convert_redirect_format(source_file_name: str):
         f.write("".join(output_rules))
 
 
+def parse_raw_versions(raw_versions: str):
+    """
+    Convert a plain text list of versions into a Python list of strings.
+    
+    Args:
+        raw_text (str): Multiline string with one version per line.
+        
+    Returns:
+        list[str]: List of version strings.
+    """
+    return [line.strip() for line in raw_versions.strip().splitlines() if line.strip()]
 
+
+
+def ensure_starts_with_slash(path: str) -> str:
+    """Ensure the path starts with a forward slash."""
+    return path if path.startswith("/") else "/" + path
+
+def ensure_ends_with_slash(path: str) -> str:
+    """Ensure the path ends with a forward slash."""
+    return path if path.endswith("/") else path + "/"
+
+def ensure_slashes(path: str) -> str:
+    """Ensure the path starts and ends with a forward slash."""
+    path = ensure_starts_with_slash(path)
+    path = ensure_ends_with_slash(path)
+    return path
+
+
+def create_alias_dict(raw_text: str) -> dict:
+    """
+    Converts a tab- or space-separated list of pairs into a dictionary,
+    where the second item in each pair is the key, and the first items
+    are collected in a list.
+
+    Args:
+        raw_text (str): Multiline string of pairs.
+
+    Returns:
+        dict[str, list[str]]: Dictionary with second item as key, and list of firsts as values.
+    """
+    result = {}
+    for line in raw_text.strip().splitlines():
+        if line.strip():
+            first, second = line.strip().split()
+            result.setdefault(second, []).append(first)
+    return result
+
+# Example usage:
+raw_input = """
+master    upcoming
+v6.17     current
+"""
 
 
 def main():
     GENERATED_WILDCARDS = './generated-wildcards.csv'
-    wildcards_arr: list[list[str]] = pd.read_csv(GENERATED_WILDCARDS).values
-    redirects = get_associated_manual_version_redirects(version)
+    # wildcards_arr: list[list[str]] = pd.read_csv(GENERATED_WILDCARDS).values
+    # redirects = get_associated_manual_version_redirects(version)
     
-    output_list = remove_wildcard_captures(wildcards_arr, redirects)
-    print (len(output_list))
-    if version in rapid_versions:
-        version_page_levels, to_specific_manual_page = separate_page_levels(output_list, version)
-        print(len(version_page_levels), len(to_specific_manual_page))
+    # output_list = remove_wildcard_captures(wildcards_arr, redirects)
+    # print (len(output_list))
+    # if version in rapid_versions:
+    #     version_page_levels, to_specific_manual_page = separate_page_levels(output_list, version)
+    #     print(len(version_page_levels), len(to_specific_manual_page))
 
-        df = pd.DataFrame(version_page_levels, columns = ['Origin', 'Redirect'])
-        df.to_csv(f"./rapids-internal-redirects/{version}-discards.csv", index= False)
-        df = pd.DataFrame(to_specific_manual_page, columns = ['Origin', 'Redirect'])
-        df.to_csv(f"./wildcard-outputs/version-{version}.csv", index= False)
+    #     df = pd.DataFrame(version_page_levels, columns = ['Origin', 'Redirect'])
+    #     df.to_csv(f"./rapids-internal-redirects/{version}-discards.csv", index= False)
+    #     df = pd.DataFrame(to_specific_manual_page, columns = ['Origin', 'Redirect'])
+    #     df.to_csv(f"./wildcard-outputs/version-{version}.csv", index= False)
 
-    else:
-        df = pd.DataFrame(output_list, columns = ['Origin', 'Redirect'])
-        df.to_csv(f"./wildcard-outputs/version-{version}.csv", index= False)
+    # else:
+    #     df = pd.DataFrame(output_list, columns = ['Origin', 'Redirect'])
+    #     df.to_csv(f"./wildcard-outputs/version-{version}.csv", index= False)
 
 
 if __name__ == "__main__":

@@ -99,30 +99,25 @@ def isValidProject(project: str) -> bool:
 #2. Redirect is for a branch that is already downloadable
 ## Accepts a list of redirects as an argument
 ## Returns list of potential consolidation paths, invalid branches, and the list of consolidated redirects
-def consolidate(redirects: list[tuple], online_branches: list) :
+def consolidate(redirects: list[tuple]) :
     potential_bucket_keys = {}
     invalid_branch_list = []
     consolidated_redirects = set()
     for redirect in redirects:
-        origin, destination = normalize(redirect[0], redirect[1])
-        origin_branch =origin.split("/")[3] 
-        if len(online_branches) > 0 and not origin_branch in online_branches:
-                invalid_branch_list.append(redirect)
-        else:       
-            for i in range(1, (min(len(origin.split("/")), len(destination.split("/"))))):
-                origin_branch = origin.split("/")[i]
-                destination_branch = destination.split("/")[i]
-                if origin.replace(origin_branch, destination_branch) == destination:
-                    val = potential_bucket_keys.setdefault(
-                        (origin_branch, destination_branch), 0
-                    )
-                    potential_bucket_keys[(origin_branch, destination_branch)] = val + 1
+        origin, destination = normalize(redirect[0], redirect[1])     
+        for i in range(1, (min(len(origin.split("/")), len(destination.split("/"))))):
+            origin_branch = origin.split("/")[i]
+            destination_branch = destination.split("/")[i]
+            if origin.replace(origin_branch, destination_branch) == destination:
+                val = potential_bucket_keys.setdefault(
+                    (origin_branch, destination_branch), 0
+                )
+                potential_bucket_keys[(origin_branch, destination_branch)] = val + 1
             
 
     consolidated_redirects =  set(redirects) - set(invalid_branch_list)
     print(f"length of consolidated redirects {len(consolidated_redirects)}")
-    print(f"length of manual captured redirects {len(invalid_branch_list)}")
-
+    print(f"number of redirects that originate from an invalid branch: {len(invalid_branch_list)}")
 # change this to have a list of the redirects we're taking out
     bucket_keys = {
         pair: count for pair, count in potential_bucket_keys.items() if not count == 1
