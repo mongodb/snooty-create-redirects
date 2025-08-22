@@ -30,7 +30,7 @@ def convert_csv_to_toml(source_file_path: str, destination_file_path: str, versi
         f.write("".join(output_rules))
 
 def main():
-    file_name = 'netlify-php-library-redirects-page-levels-cleaned'
+    file_name = 'netlify-realm-redirects'
     source_file_path = f'../netlify-redirects/{file_name}.csv'
     if not os.path.isfile(source_file_path):
         print(f"Source file does not exist at path {source_file_path}")

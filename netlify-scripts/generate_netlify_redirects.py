@@ -59,16 +59,18 @@ def convert(redirects: list[tuple], output_file_name: str) -> list[str]:
 # TODO: add parser args
 def main():
     KEY_REFRESH = True
-    bucket = "docs-mongodb-org-dotcomprd"
+    bucket = "docs-atlas-dotcomprd"
     # Subdir must be a project(ex: "docs/bi-connector") or a valid docs version
-    subdir = "docs/mongoid"
-    output_file_name = "netlify-mongoid"
+    subdir = "docs/atlas/device-sdks"
+    output_file_name = "netlify-realm"
     # 168197
     # last_index = 168197
     last_index = 500000
     first_index = 0
     # leave empty if unversioned
-    online_branches = ["upcoming", "master", "current", "v9.0"]
+    online_branches = []
+
+
     s3_connection = boto3.session.Session().client("s3")
 
 

@@ -1,13 +1,13 @@
 from utils import create_alias_dict, ensure_slashes, parse_raw_versions
 
-redirect_label = "[[redirects]]"
-from_label = "from = "
-to_label = "to = "
+redirect_label = "\t[[redirects]]"
+from_label = "\tfrom = "
+to_label = "\tto = "
 asterisk = "/*"
 splat = "/:splat"
 
-ok_status_code = "status = 200"
-temporary_status_code = "status = 302"
+ok_status_code = "\tstatus = 200"
+temporary_status_code = "\tstatus = 302"
 
 intermediary_label = 'intermediary/'
 
@@ -105,43 +105,61 @@ def create_alias_redirect(prefix, key, alias_list):
 def create_alias_redirect_list(prefix, alias_dict):
     all_alias_redirects = []
     for key, alias_list in alias_dict.items():
-        all_alias_redirects.append(create_alias_redirect(prefix, key, alias_list))
+        alias_redirect = create_alias_redirect(prefix, key, alias_list)
+        if alias_redirect:
+            all_alias_redirects.append(alias_redirect)
     return "\n\n".join(all_alias_redirects)
 
 
 
 def main():
     ## Must use leading and trailing slash
-    dest_file_name = "netlify-php-library"
+    dest_file_name = "netlify-ruby-driver"
     DESTINATION_FILE = f"../netlify-redirects/{dest_file_name}-standards.toml"
-    prefix = ensure_slashes("/docs/php-library/")
+    prefix = ensure_slashes("/docs/ruby-driver/")
 
     
-    final_str = []
+    final_str = ["""
+### OFFLINE REDIRECTS
+### ALIAS REDIRECTS
+### PAGE-SPECIFIC REDIRECTS
+### WILDCARD REDIRECTS
+### CATCH ALLS
+ ## redirects any pages not at any of the active versions to current (makes eols technically unnecessary)
+ """]
 
     # returns array of minor versions between start and end numbers, inclusive
     # versions_to_eol =  create_numerical_versions_list(0.10, 1.24)
     raw_offline_versions = """
-    v1.17
-    v1.16
-    v1.15
-    v1.14
-    v1.13
-    v1.12
-    v1.11
-    v1.10
-    v1.9
-    v1.8
-    v1.7
-    v1.6
-    v1.5
-    v1.4
-    v1.3
-    v1.2
+v2.20
+v2.19
+v2.18
+v2.17
+v2.16
+v2.15
+v2.14
+v2.13
+v2.12
+v2.11
+v2.15
+v2.14
+v2.13
+v2.12
+v2.11
+v2.10
+v2.9
+v2.8
+v2.7
+v2.6
+v2.5
+v2.4
+v2.3
+v2.2
+v2.0
+v1.x
     """
     offline_versions = parse_raw_versions(raw_offline_versions)
     # offline_versions = ["v8.1"]
-
     # The version that we want all offlined versions to redirect to
     desired_eol_dest = "current"
     ascending = True
@@ -151,30 +169,29 @@ def main():
         final_str.append("\n### OFFLINE REDIRECTS ")
         final_str.append(offline_redirects_list)
 
+    
+
     # dictionary of aliases keyed by slug
     # value is list of aliases for that slug
     raw_aliases =  """
-    master	upcoming
-    v2.x	current
-    v1.x	v1.x
+master	upcoming
+v2.21	current
     """
     alias_dict = create_alias_dict(raw_aliases)
     # alias_dict = {'current': ['v2.0'], 'upcoming': ['master']}
-    final_str.append("\n### ALIAS REDIRECTS")
+    final_str.append("\n\n### ALIAS REDIRECTS")
     all_alias_redirects = create_alias_redirect_list(prefix, alias_dict)
     final_str.append(all_alias_redirects)
- 
+    
+    final_str.append("\n\n### PAGE-LEVEL REDIRECTS")
+    final_str.append("\n\n### WILDCARD REDIRECTS")
+
     # online_versions = create_numerical_versions_list(1.9, 2.8) + ['current', 'upcoming']
-    raw_versions = """
-    upcoming
-    current
-    v1.x
-    """
     online_versions = alias_dict.keys()
     # online_versions = ["upcoming", "current"]
     
     intermediary_redirects = create_intermediary_version_redirect_list(online_versions, prefix)
-    final_str.append(f"\n#Online versions: {online_versions}")
+    final_str.append(f"\n\n#Online versions: {online_versions}")
     final_str.append(f"### CATCH ALLS (Redirects any {prefix} page that would've 404ed to the version's landing page)")
     final_str.append(intermediary_redirects)
 

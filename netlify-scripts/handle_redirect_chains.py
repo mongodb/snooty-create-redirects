@@ -72,7 +72,7 @@ def replace_path_section(redirect: tuple):
     return base_redirect_origin, base_redirect_destination
 
 def main(): 
-    file_name = 'netlify-php-library-redirects'
+    file_name = 'netlify-ruby-driver-redirects'
     source_file_path = f'../netlify-redirects/{file_name}.csv'
     redirects_arr = pd.read_csv(source_file_path)
     redirects = list([*map(tuple,redirects_arr.values)])

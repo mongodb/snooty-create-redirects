@@ -52,7 +52,7 @@ def get_bucket_objects_list(
         specific_keys = []
         for key in objects_list:
             for branch_subdir in subdirs:
-                if key.startswith(branch_subdir):
+                if key.startswith(subdir) and not key.startswith(branch_subdir) :
                     specific_keys.append(key)
                     continue
         objects_list = specific_keys
@@ -128,13 +128,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--bucket",
-        default="docs-mongodb-org-dotcomprd",
+        default="docs-atlas-dotcomprd",
         help="Which bucket to to look in",
         type=str,
     )
     parser.add_argument(
         "--subdir",
-        default="docs",
+        default="docs/atlas/app-services/",
         help="Specify the subdir in which you'd like to retrieve redirects",
         type=str,
     )

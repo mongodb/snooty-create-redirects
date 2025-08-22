@@ -93,31 +93,31 @@ def clean_aliases(alias_dict, redirect_list, num_prefix_sections):
     return list(set(cleaned_redirect_list))
 
 def main():
-    ## Must use leading and trailing slash
-    prefix = ensure_slashes("/docs/mongoid/")
-    raw_versions = """
-    upcoming
-    current
-    """
-
-    # main_versions = parse_raw_versions(raw_versions)
-    # print(main_versions)
-    main_versions = ["upcoming", "current"]
-    raw_aliases =  """
-    master    upcoming
-    v9.0     current
-    """
-
-    alias_dict = create_alias_dict(raw_aliases)
-    print(alias_dict)
-    # alias_dict = {'current': ['v3.4'], 'upcoming': ['master']}
-
-
-    file_name = 'netlify-mongoid-redirects'
+    file_name = 'netlify-java-rs-driver-redirects'
     source_file_path = f'../netlify-redirects/{file_name}.csv'
     redirects_arr = pd.read_csv(source_file_path)
     redirects = list([*map(tuple,redirects_arr.values)])
     print(len(redirects))
+    ## Must use leading and trailing slash
+    prefix = ensure_slashes("/docs/languages/java/reactive-streams-driver")
+
+    raw_aliases =  """
+main	upcoming
+v5.5	current
+v5.4	v5.4
+v5.3	v5.3
+v5.2	v5.2
+v5.1	v5.1
+v5.0	v5.0
+    """
+
+    alias_dict = create_alias_dict(raw_aliases)
+    # alias_dict = {'current': ['v3.4'], 'upcoming': ['master']}
+    main_versions = alias_dict.keys()
+    print(alias_dict)
+
+
+  
  
 
     num_prefix_sections = len(prefix.split("/"))-1 
@@ -130,8 +130,8 @@ def main():
     #remove the ones associated with the wildcards
     remaining_redirects= remove_wildcard_caught_redirects(new_redirect_list, set(wildcards), main_versions, prefix, num_prefix_sections)
     print('\n\n', "remaining redirects that will be page levels:", len(remaining_redirects))
-    write_to_csv(remaining_redirects, f"{file_name}-page-levels" )
-    write_to_csv(wildcards, f"{file_name}-wildcards")
+    write_to_csv(remaining_redirects, f"{file_name}-page-levels-2" )
+    write_to_csv(wildcards, f"{file_name}-wildcards-2")
  
 
 if __name__ == "__main__":
