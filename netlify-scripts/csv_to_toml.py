@@ -11,16 +11,16 @@ def convert_csv_to_toml(source_file_path: str, destination_file_path: str, versi
         if not destination.startswith("/") and not destination.startswith("https"):
             destination = ensure_starts_with_slash(destination)
         if not destination.endswith("/"):
-            destination =  ensure_ends_with_slash
+            destination = ensure_ends_with_slash(destination)
         origin = ensure_slashes(origin)
 
         if origin != destination:
             output_rules.append(
-            '\n[[redirects]] \rfrom = "'
-            + origin
-            + '"\rto = "'
-            + destination
-            + '"\r\r'
+                '\n[[redirects]]\nfrom = "'
+                + origin
+                + '"\nto = "'
+                + destination
+                + '"\n\n'
             )
     output_rules.sort()
 
@@ -30,12 +30,12 @@ def convert_csv_to_toml(source_file_path: str, destination_file_path: str, versi
         f.write("".join(output_rules))
 
 def main():
-    file_name = 'netlify-realm-redirects'
-    source_file_path = f'../netlify-redirects/{file_name}.csv'
+    file_name = 'open_api_redirects'
+    source_file_path = f'netlify-redirects/{file_name}.csv'
     if not os.path.isfile(source_file_path):
         print(f"Source file does not exist at path {source_file_path}")
         return 
-    destination_file_path = f'../netlify-redirects/{file_name}.toml'
+    destination_file_path = f'netlify-redirects/{file_name}.toml'
     convert_csv_to_toml(source_file_path, destination_file_path, file_name)
 
 if __name__ == "__main__":
